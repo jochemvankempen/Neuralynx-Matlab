@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NLX_NSE2WaveClus</title>
+  <meta name="keywords" content="NLX_NSE2WaveClus">
+  <meta name="description" content="converts a nse file to the ascii(*.mat) format that is used by Wave_clus">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Neuralynx Tools</a> &gt; NLX_NSE2WaveClus.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Neuralynx Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>NLX_NSE2WaveClus
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>converts a nse file to the ascii(*.mat) format that is used by Wave_clus</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [index,spikes] = NLX_NSE2WaveClus(NSE,sampleindex,savedir) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> converts a nse file to the ascii(*.mat) format that is used by Wave_clus</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NLX_LoadNSE.html" class="code" title="function NSE = NLX_LoadNSE(NSEpath,FieldOption,ExtractMode,ExtractArray)">NLX_LoadNSE</a>	Loads a *.nse file into a matlab structure.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [index,spikes] = NLX_NSE2WaveClus(NSE,sampleindex,savedir)</a>
+0002 
+0003 <span class="comment">% converts a nse file to the ascii(*.mat) format that is used by Wave_clus</span>
+0004 <span class="comment">%</span>
+0005 
+0006 <span class="keyword">if</span> nargin&lt;2 | isempty(sampleindex)
+0007     sampleindex = [1:32];
+0008 <span class="keyword">end</span>
+0009 
+0010 <span class="comment">% check input format</span>
+0011 <span class="keyword">if</span> ischar(NSE)
+0012     NSE = <a href="NLX_LoadNSE.html" class="code" title="function NSE = NLX_LoadNSE(NSEpath,FieldOption,ExtractMode,ExtractArray)">NLX_LoadNSE</a>(NSE,<span class="string">'WAVEFORMS'</span>,1,[]);
+0013 <span class="keyword">elseif</span> isstruct(NSE)
+0014 <span class="keyword">end</span>
+0015 
+0016 [fdir,fname,fext] = fileparts(NSE.Path);
+0017 <span class="keyword">if</span> nargin&lt;3 | isempty(savedir)
+0018     savedir = fdir;
+0019 <span class="keyword">end</span>
+0020 
+0021 index = NSE.TimeStamps.*0.001;
+0022 spikes = permute(NSE.SpikeWaveForm(sampleindex,:,:),[3,1,2]);
+0023 data = NaN;
+0024 
+0025 save(fullfile(savedir,[fname <span class="string">'.mat'</span>]),<span class="string">'-mat'</span>,<span class="string">'-V6'</span>,<span class="string">'data'</span>,<span class="string">'index'</span>,<span class="string">'spikes'</span>);</pre></div>
+<hr><address>Generated on Thu 25-Mar-2010 13:02:14 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

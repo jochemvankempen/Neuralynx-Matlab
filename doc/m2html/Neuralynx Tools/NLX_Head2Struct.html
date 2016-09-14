@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NLX_Head2Struct</title>
+  <meta name="keywords" content="NLX_Head2Struct">
+  <meta name="description" content="converts the header cell array to a structure">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Neuralynx Tools</a> &gt; NLX_Head2Struct.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Neuralynx Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>NLX_Head2Struct
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>converts the header cell array to a structure</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function Header = NLX_Head2Struct(NLXHeader) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> converts the header cell array to a structure
+ NLXHeader can be a structure with the field x.Header or a cell array with
+ thr rows of the header in vertical cells</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NLX_convertNCS.html" class="code" title="function NCS = NLX_convertNCS(NCS,ADGain,AmpGain)">NLX_convertNCS</a>	Convert the raw *.ncs data to analog microV</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function Header = NLX_Head2Struct(NLXHeader)</a>
+0002 
+0003 <span class="comment">% converts the header cell array to a structure</span>
+0004 <span class="comment">% NLXHeader can be a structure with the field x.Header or a cell array with</span>
+0005 <span class="comment">% thr rows of the header in vertical cells</span>
+0006 
+0007 Header = struct;
+0008 
+0009 <span class="keyword">if</span> isstruct(NLXHeader)
+0010     NLXHeader = NLXHeader.Header;
+0011 <span class="keyword">end</span>
+0012 
+0013 NumRows = length(NLXHeader);
+0014 <span class="keyword">for</span> i = 1:NumRows
+0015     <span class="keyword">if</span> isempty(NLXHeader{i}) | strcmp(NLXHeader{i}(1),<span class="string">'#'</span>);<span class="keyword">continue</span>;<span class="keyword">end</span>
+0016     k = strfind(NLXHeader{i},<span class="string">'-'</span>);
+0017     <span class="keyword">if</span> isempty(k);<span class="keyword">continue</span>;<span class="keyword">end</span>
+0018     
+0019     [ValName,remainder] = strtok(NLXHeader{i}(k+1:end));
+0020     <span class="keyword">if</span> isempty(str2num(remainder))
+0021         Header = setfield(Header,ValName,strrep(remainder,<span class="string">' '</span>,<span class="string">''</span>));
+0022     <span class="keyword">else</span>
+0023         Header = setfield(Header,ValName,str2num(remainder));
+0024     <span class="keyword">end</span>
+0025 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 25-Mar-2010 13:02:14 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

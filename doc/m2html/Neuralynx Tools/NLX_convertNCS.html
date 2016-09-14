@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NLX_convertNCS</title>
+  <meta name="keywords" content="NLX_convertNCS">
+  <meta name="description" content="Convert the raw *.ncs data to analog microV">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Neuralynx Tools</a> &gt; NLX_convertNCS.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Neuralynx Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>NLX_convertNCS
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Convert the raw *.ncs data to analog microV</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function NCS = NLX_convertNCS(NCS,ADGain,AmpGain) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Convert the raw *.ncs data to analog microV
+ If ADGain and/or AmpGain are left empty, the values in the header will be
+ used for conversion. The maximum ADbit Value is read from the header.
+ INPUT
+ NCS ........ structure, see NLX_loadNCS
+ ADGain .....
+ AmpGain ....
+ OUTPUT
+ NCS ........ NCS structure containing data in time window</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NLX_Head2Struct.html" class="code" title="function Header = NLX_Head2Struct(NLXHeader)">NLX_Head2Struct</a>	converts the header cell array to a structure</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function NCS = NLX_convertNCS(NCS,ADGain,AmpGain)</a>
+0002 
+0003 <span class="comment">% Convert the raw *.ncs data to analog microV</span>
+0004 <span class="comment">% If ADGain and/or AmpGain are left empty, the values in the header will be</span>
+0005 <span class="comment">% used for conversion. The maximum ADbit Value is read from the header.</span>
+0006 <span class="comment">% INPUT</span>
+0007 <span class="comment">% NCS ........ structure, see NLX_loadNCS</span>
+0008 <span class="comment">% ADGain .....</span>
+0009 <span class="comment">% AmpGain ....</span>
+0010 <span class="comment">% OUTPUT</span>
+0011 <span class="comment">% NCS ........ NCS structure containing data in time window</span>
+0012 
+0013 ADVoltRange = 10; <span class="comment">% in mV</span>
+0014 <span class="comment">% check conversion parameter</span>
+0015 H = <a href="NLX_Head2Struct.html" class="code" title="function Header = NLX_Head2Struct(NLXHeader)">NLX_Head2Struct</a>(NCS.Header);
+0016 <span class="keyword">if</span> nargin&lt;4 | isempty(AmpGain);AmpGain = H.AmpGain;<span class="keyword">end</span>
+0017 <span class="keyword">if</span> nargin&lt;3 | isempty(ADGain);ADGain = H.ADGain;<span class="keyword">end</span>
+0018 ADMaxValue = H.ADMaxValue;
+0019 ADBitVolts = (ADVoltRange/ADMaxValue) .* (1/ADGain) .* (1/AmpGain);
+0020 disp([<span class="string">'ADGain: '</span> num2str(ADGain) <span class="string">' AmpGain: '</span> num2str(AmpGain) <span class="string">' ADBitVolts: '</span> num2str(ADBitVolts) <span class="string">' ADMaxValue: '</span> num2str(ADMaxValue)]);
+0021 
+0022 <span class="keyword">if</span> length(unique(NCS.ValidSampleNum))&gt;1;warning(<span class="string">'ValidSampleNum are inconsistent!'</span>);<span class="keyword">end</span>
+0023 <span class="keyword">if</span> length(unique(NCS.SF))&gt;1;warning(<span class="string">'Sample Frequencies are inconsistent!'</span>);<span class="keyword">end</span>
+0024 
+0025 <span class="comment">% conversion to micro volts</span>
+0026 NCS.Samples = NCS.Samples .* ADBitVolts .* (10^6);</pre></div>
+<hr><address>Generated on Thu 25-Mar-2010 13:02:14 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

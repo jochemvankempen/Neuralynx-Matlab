@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NLX_WaveformHist</title>
+  <meta name="keywords" content="NLX_WaveformHist">
+  <meta name="description" content="Plots histogram of waveform values at given sample nr.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Neuralynx Tools</a> &gt; NLX_WaveformHist.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Neuralynx Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>NLX_WaveformHist
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Plots histogram of waveform values at given sample nr.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function NSE = NLX_WaveformHist(NSE,ClusterNr,SampleNr) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Plots histogram of waveform values at given sample nr.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NLX_ClusterColor.html" class="code" title="function c = NLX_ClusterColor(ClusterNr)">NLX_ClusterColor</a>	Coloring for cell clusters</li><li><a href="NLX_LoadNSE.html" class="code" title="function NSE = NLX_LoadNSE(NSEpath,FieldOption,ExtractMode,ExtractArray)">NLX_LoadNSE</a>	Loads a *.nse file into a matlab structure.</li><li><a href="NLX_findSpikes.html" class="code" title="function [Index,NSE] = NLX_findSpikes(NSE,varargin)">NLX_findSpikes</a>	Finds spikes with given properties.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function NSE = NLX_WaveformHist(NSE,ClusterNr,SampleNr)</a>
+0002 
+0003 <span class="comment">% Plots histogram of waveform values at given sample nr.</span>
+0004 
+0005 NumClust = length(ClusterNr);
+0006 NumSamp = length(SampleNr);
+0007 <span class="keyword">if</span> isempty(NSE)
+0008     NSE = <a href="NLX_LoadNSE.html" class="code" title="function NSE = NLX_LoadNSE(NSEpath,FieldOption,ExtractMode,ExtractArray)">NLX_LoadNSE</a>([],<span class="string">'WAVEFORMS'</span>,1,[]);
+0009 <span class="keyword">end</span>
+0010 
+0011 figure(<span class="string">'color'</span>,<span class="string">'k'</span>);
+0012 <span class="keyword">for</span> i=1:NumClust
+0013     <span class="keyword">for</span> j=1:NumSamp
+0014         subplot(NumSamp,NumClust,(j-1)*NumClust+i)
+0015         Index = <a href="NLX_findSpikes.html" class="code" title="function [Index,NSE] = NLX_findSpikes(NSE,varargin)">NLX_findSpikes</a>(NSE,<span class="string">'CLUSTER'</span>,ClusterNr(i));
+0016         Bins = [-2047:2047/15:0 2047/15:2047/15:2047];
+0017         N = hist(NSE.SpikeWaveForm(SampleNr(j),1,Index),Bins);
+0018         h = bar(Bins,N);
+0019         set(h,<span class="string">'edgecolor'</span>,<span class="string">'none'</span>,<span class="string">'facecolor'</span>,<a href="NLX_ClusterColor.html" class="code" title="function c = NLX_ClusterColor(ClusterNr)">NLX_ClusterColor</a>(i));
+0020         set(gca,<span class="string">'color'</span>,<span class="string">'k'</span>, <span class="keyword">...</span>
+0021             <span class="string">'xcolor'</span>,[.5 .5 .5], <span class="string">'xtick'</span>,[-2000:100:2000], <span class="keyword">...</span>
+0022             <span class="string">'ycolor'</span>,[.5 .5 .5])
+0023     <span class="keyword">end</span>
+0024 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 25-Mar-2010 13:02:14 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

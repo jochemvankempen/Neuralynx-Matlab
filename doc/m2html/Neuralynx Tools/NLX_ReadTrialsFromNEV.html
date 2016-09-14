@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NLX_ReadTrialsFromNEV</title>
+  <meta name="keywords" content="NLX_ReadTrialsFromNEV">
+  <meta name="description" content="reads trial events according to events defined in settings structure">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Neuralynx Tools</a> &gt; NLX_ReadTrialsFromNEV.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Neuralynx Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>NLX_ReadTrialsFromNEV
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>reads trial events according to events defined in settings structure</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [TrialHead,TrialEv] = nlx_ReadTrialsFromNEV(NEV,S,TW) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> reads trial events according to events defined in settings structure</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NLX_ExtractNEV.html" class="code" title="function NEV = NLX_ExtractNEV(NEV,Index)">NLX_ExtractNEV</a>	Extracts entries from a NEV structure</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [TrialHead,TrialEv] = nlx_ReadTrialsFromNEV(NEV,S,TW)</a>
+0002 
+0003 <span class="comment">% reads trial events according to events defined in settings structure</span>
+0004 
+0005 Range = find(NEV.TimeStamps&gt;=TW(1) &amp; NEV.TimeStamps&lt;=TW(2));
+0006 NEV = <a href="NLX_ExtractNEV.html" class="code" title="function NEV = NLX_ExtractNEV(NEV,Index)">NLX_ExtractNEV</a>(NEV,Range);
+0007 numEv = length(NEV.TimeStamps);
+0008 
+0009 TRIALSTART = S.EventCode(strmatch(<span class="string">'NLX_TRIAL_START'</span>,S.EventName,<span class="string">'exact'</span>));
+0010 TRIALEND = S.EventCode(strmatch(<span class="string">'NLX_TRIAL_END'</span>,S.EventName,<span class="string">'exact'</span>));
+0011 
+0012 
+0013 EvCount = 0;
+0014 nTr = 0;
+0015 ReachedFileEnd = 0;
+0016 hwait=waitbar(0,<span class="string">''</span>);
+0017 <span class="keyword">while</span> EvCount&lt;numEv
+0018     EvCount = EvCount+1;
+0019     
+0020     <span class="keyword">if</span> NEV.TTL(EvCount)==S.EventCode(strmatch(<span class="string">'NLX_TRIAL_START'</span>,S.EventName,<span class="string">'exact'</span>));
+0021         nTr = nTr+1;
+0022         
+0023         TrialEv{nTr} = [NEV.TTL(EvCount) NEV.TimeStamps(EvCount)];
+0024         
+0025         <span class="keyword">while</span> NEV.TTL(EvCount)~=S.EventCode(strmatch(<span class="string">'NLX_TRIALPARAM_START'</span>,S.EventName,<span class="string">'exact'</span>));
+0026             EvCount = EvCount+1;
+0027         <span class="keyword">end</span>
+0028         
+0029         currTrialHead = [];
+0030         <span class="keyword">while</span> NEV.TTL(EvCount)~=S.EventCode(strmatch(<span class="string">'NLX_TRIALPARAM_END'</span>,S.EventName,<span class="string">'exact'</span>));
+0031             EvCount = EvCount+1;
+0032             <span class="keyword">if</span> NEV.TTL(EvCount)~=0 &amp; NEV.TTL(EvCount)~=S.EventCode(strmatch(<span class="string">'NLX_TRIALPARAM_END'</span>,S.EventName,<span class="string">'exact'</span>));
+0033                 currTrialHead = cat(1,currTrialHead,[NEV.TTL(EvCount) NEV.TimeStamps(EvCount)]);
+0034             <span class="keyword">end</span>
+0035         <span class="keyword">end</span>
+0036         <span class="keyword">if</span> size(currTrialHead,1)==3
+0037             TrialHead(:,nTr) = currTrialHead(:,1);
+0038         <span class="keyword">end</span>
+0039         
+0040         <span class="keyword">while</span> NEV.TTL(EvCount)~=S.EventCode(strmatch(<span class="string">'NLX_TRIAL_END'</span>,S.EventName,<span class="string">'exact'</span>));
+0041             EvCount = EvCount+1;
+0042             <span class="keyword">if</span> NEV.TTL(EvCount)~=0;
+0043                 TrialEv{nTr} = cat(1,TrialEv{nTr},[NEV.TTL(EvCount) NEV.TimeStamps(EvCount)]);
+0044             <span class="keyword">end</span>
+0045         <span class="keyword">end</span>
+0046     <span class="keyword">end</span>
+0047     waitbar(EvCount/numEv,hwait);
+0048 <span class="keyword">end</span>
+0049 close(hwait);
+0050 
+0051 <span class="comment">%                 NEV.TimeStamps(TrialStartIND(i)</span>
+0052 <span class="comment">%</span>
+0053 <span class="comment">%</span>
+0054 <span class="comment">%</span>
+0055 <span class="comment">%</span>
+0056 <span class="comment">% end</span>
+0057 <span class="comment">%</span>
+0058 <span class="comment">%</span>
+0059 <span class="comment">%     if i&lt;nTrialStarts &amp; ~all(ismember(S.MandatoryEvents,NEV.TTL(TrialStartIND(i):TrialStartIND(i+1)-1)));continue;end</span>
+0060 <span class="comment">%     if i==nTrialStarts &amp; ~all(ismember(S.MandatoryEvents,NEV.TTL(TrialStartIND(i):end)));continue;end</span>
+0061 <span class="comment">%</span>
+0062 <span class="comment">%</span>
+0063 <span class="comment">%</span>
+0064 <span class="comment">% %</span>
+0065 <span class="comment">%</span>
+0066 <span class="comment">%</span>
+0067 <span class="comment">% disp('ok')</span>
+0068 <span class="comment">% %</span>
+0069 <span class="comment">% % MandatoryEvents</span>
+0070 <span class="comment">% % S.EventName(1) = {'NLX_TRIAL_START'};</span>
+0071 <span class="comment">% % S.EventCode(1) = 255;</span></pre></div>
+<hr><address>Generated on Thu 25-Mar-2010 13:02:14 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

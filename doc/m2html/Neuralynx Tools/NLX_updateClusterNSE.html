@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NLX_updateClusterNSE</title>
+  <meta name="keywords" content="NLX_updateClusterNSE">
+  <meta name="description" content="updates spikes in NSE1 with spike information in NSE2">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Neuralynx Tools</a> &gt; NLX_updateClusterNSE.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Neuralynx Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>NLX_updateClusterNSE
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>updates spikes in NSE1 with spike information in NSE2</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function NSE1 = NLX_updateClusterNSE(NSE1,NSE2,SaveMemoryFlag) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> updates spikes in NSE1 with spike information in NSE2</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NLX_LoadNSE.html" class="code" title="function NSE = NLX_LoadNSE(NSEpath,FieldOption,ExtractMode,ExtractArray)">NLX_LoadNSE</a>	Loads a *.nse file into a matlab structure.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function NSE1 = NLX_updateClusterNSE(NSE1,NSE2,SaveMemoryFlag)</a>
+0002 
+0003 <span class="comment">% updates spikes in NSE1 with spike information in NSE2</span>
+0004 
+0005 
+0006 <span class="comment">%% load NSE data</span>
+0007 <span class="keyword">if</span> nargin&lt;1 | isempty(NSE1)
+0008     NSE1 = <a href="NLX_LoadNSE.html" class="code" title="function NSE = NLX_LoadNSE(NSEpath,FieldOption,ExtractMode,ExtractArray)">NLX_LoadNSE</a>([],<span class="string">'FULL'</span>,1,[]);
+0009 <span class="keyword">elseif</span> ischar(NSE1)
+0010     NSE1 = <a href="NLX_LoadNSE.html" class="code" title="function NSE = NLX_LoadNSE(NSEpath,FieldOption,ExtractMode,ExtractArray)">NLX_LoadNSE</a>(NSE1,<span class="string">'FULL'</span>,1,[]);
+0011 <span class="keyword">end</span>
+0012 <span class="keyword">if</span> nargin&lt;2 | isempty(NSE2)
+0013     NSE2 = <a href="NLX_LoadNSE.html" class="code" title="function NSE = NLX_LoadNSE(NSEpath,FieldOption,ExtractMode,ExtractArray)">NLX_LoadNSE</a>([],<span class="string">'FULL'</span>,1,[]);
+0014 <span class="keyword">elseif</span> ischar(NSE2)
+0015     NSE2 = <a href="NLX_LoadNSE.html" class="code" title="function NSE = NLX_LoadNSE(NSEpath,FieldOption,ExtractMode,ExtractArray)">NLX_LoadNSE</a>(NSE2,<span class="string">'FULL'</span>,1,[]);
+0016 <span class="keyword">end</span>
+0017 
+0018 <span class="comment">% % sort spikes</span>
+0019 <span class="comment">% NSE1 = NLX_sortNSE(NSE1);</span>
+0020 <span class="comment">% NSE2 = NLX_sortNSE(NSE2);</span>
+0021 
+0022 <span class="comment">%% find spikes</span>
+0023 <span class="keyword">if</span> ~SaveMemoryFlag
+0024     i = NSE2.TimeStamps&gt;=NSE1.TimeStamps(1) &amp; NSE2.TimeStamps&lt;=NSE1.TimeStamps(end);
+0025     
+0026     <span class="keyword">if</span> length(NSE1.TimeStamps)~=sum(i)
+0027         error(<span class="string">'Spike number mismatch'</span>);
+0028     <span class="keyword">end</span>
+0029     <span class="keyword">if</span> any(NSE2.TimeStamps(i)~=NSE1.TimeStamps)
+0030         warning(<span class="string">'Mismatch of spike timestamps'</span>);
+0031         i(NSE2.TimeStamps(i)~=NSE1.TimeStamps) = false;
+0032     <span class="keyword">end</span>
+0033     
+0034     NSE1.TimeStamps = NSE2.TimeStamps(i);
+0035     NSE1.ScNr = NSE2.ScNr(i);
+0036     NSE1.ClusterNr = NSE2.ClusterNr(i);
+0037     NSE1.SpikeFeatures = NSE2.SpikeFeatures(:,i);
+0038     NSE1.SpikeWaveForm = NSE2.SpikeWaveForm(:,:,i);
+0039 <span class="keyword">else</span>
+0040     n = length(NSE1.TimeStamps);
+0041     [dummy,i2] = ismember(NSE1.TimeStamps,NSE2.TimeStamps);
+0042     <span class="keyword">for</span> i=1:n
+0043         NSE1.ScNr(i) = NSE2.ScNr(i2(i));
+0044         NSE1.ClusterNr(i) = NSE2.ClusterNr(i2(i));
+0045         NSE1.SpikeFeatures(:,i) = NSE2.SpikeFeatures(:,i2(i));
+0046         NSE1.SpikeWaveForm(:,:,i) = NSE2.SpikeWaveForm(:,:,i2(i));
+0047     <span class="keyword">end</span>
+0048 <span class="keyword">end</span>
+0049         
+0050         
+0051 
+0052 <span class="comment">%</span>
+0053 <span class="comment">% % go through all the spikes</span>
+0054 <span class="comment">% hwait = waitbar(0,['check ' sprintf('%6.0f',nSpikes) ' spikes ...']);</span>
+0055 <span class="comment">% for i = 1:nSpikes</span>
+0056 <span class="comment">%     cSpki = NSE2.TimeStamps==NSE1.TimeStamps(i);</span>
+0057 <span class="comment">%</span>
+0058 <span class="comment">% %     if sum(cSpki)==0;error('Can''t find spike.');</span>
+0059 <span class="comment">% %     elseif sum(cSpki)&gt;1;error('Found more than one spike.');</span>
+0060 <span class="comment">% %     elseif     ~all(NSE1.SpikeWaveForm(:,1,i)==NSE1.SpikeWaveForm(:,1,cSpki))</span>
+0061 <span class="comment">% %         error('Spikes have different waveforms');</span>
+0062 <span class="comment">% %     end</span>
+0063 <span class="comment">%</span>
+0064 <span class="comment">%     errorsum = zeros(1,3);</span>
+0065 <span class="comment">%     if sum(cSpki)==0;errorsum(1) = errorsum(1)+1;</span>
+0066 <span class="comment">%     elseif sum(cSpki)&gt;1;errorsum(2) = errorsum(2)+1;</span>
+0067 <span class="comment">%     elseif     ~all(NSE1.SpikeWaveForm(:,1,i)==NSE2.SpikeWaveForm(:,1,cSpki))</span>
+0068 <span class="comment">%         errorsum(3) = errorsum(3)+1;</span>
+0069 <span class="comment">%     else</span>
+0070 <span class="comment">%         % no error, use all the spike times</span>
+0071 <span class="comment">%         NSE1.ClusterNr(i) = NSE2.ClusterNr(cSpki);</span>
+0072 <span class="comment">%     end</span>
+0073 <span class="comment">%</span>
+0074 <span class="comment">%     waitbar(i/nSpikes,hwait);</span>
+0075 <span class="comment">% end</span>
+0076 <span class="comment">% close(hwait);</span>
+0077 <span class="comment">%</span>
+0078 <span class="comment">% fprintf(1,'%7.0f total\n',nSpikes);</span>
+0079 <span class="comment">% fprintf(1,'%7.0f notfound\n',errorsum(1));</span>
+0080 <span class="comment">% fprintf(1,'%7.0f ambigous\n',errorsum(2));</span>
+0081 <span class="comment">% fprintf(1,'%7.0f wrong waveform\n',errorsum(3));</span></pre></div>
+<hr><address>Generated on Thu 25-Mar-2010 13:02:14 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

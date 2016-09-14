@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NLX_readNSE</title>
+  <meta name="keywords" content="NLX_readNSE">
+  <meta name="description" content="reads an *.NSE file using fread">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Neuralynx Tools</a> &gt; NLX_readNSE.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Neuralynx Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>NLX_readNSE
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>reads an *.NSE file using fread</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function s = NLX_readNSE(fPath) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> reads an *.NSE file using fread
+ 1 Byte = 8 Bit
+ 1 Kilobyte = 1024 Bytes
+ 1 Megabyte = 1048576 Bytes
+ 1 Gigabyte = 1073741824 Bytes</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function s = NLX_readNSE(fPath)</a>
+0002 
+0003 <span class="comment">% reads an *.NSE file using fread</span>
+0004 <span class="comment">% 1 Byte = 8 Bit</span>
+0005 <span class="comment">% 1 Kilobyte = 1024 Bytes</span>
+0006 <span class="comment">% 1 Megabyte = 1048576 Bytes</span>
+0007 <span class="comment">% 1 Gigabyte = 1073741824 Bytes</span>
+0008 
+0009 <span class="comment">% open file</span>
+0010 fid = fopen(fPath,<span class="string">'r'</span>);
+0011 HdBytes = 1024*16;
+0012 RecordBytes = (64 + 32 + 32 + 32*8 + 16*32)/8;
+0013 status = fseek(fid,0,<span class="string">'eof'</span>);
+0014 FileBytes = ftell(fid);
+0015 N = (FileBytes-HdBytes)/RecordBytes;
+0016 
+0017 <span class="comment">% allocation</span>
+0018 s.Hd = <span class="string">''</span>;
+0019 s.TimeStamp = zeros(N,1);
+0020 s.ScNr = zeros(N,1);
+0021 s.CellNr = zeros(N,1);
+0022 s.Params = zeros(N,8);
+0023 s.Data = zeros(N,32);
+0024 
+0025 <span class="comment">% reading the header</span>
+0026 wbh = waitbar(0,<span class="string">'reading header'</span>);
+0027 status = fseek(fid,0,<span class="string">'bof'</span>);
+0028 s.Hd = fread(fid, 1024*16, <span class="string">'uint8=&gt;char'</span>)';
+0029 
+0030 <span class="comment">% reading data</span>
+0031 status = fseek(fid,1024*16,<span class="string">'bof'</span>);
+0032 cnt = 0;
+0033 <span class="keyword">while</span> cnt&lt;N
+0034     cnt = cnt+1;
+0035     s.TimeStamp(cnt,1) = fread(fid,1,<span class="string">'uint64=&gt;double'</span>);
+0036     s.ScNr(cnt,1) = fread(fid,1,<span class="string">'uint32=&gt;double'</span>);
+0037     s.CellNr(cnt,1) = fread(fid,1,<span class="string">'uint32=&gt;double'</span>);
+0038     s.Params(cnt,:) = fread(fid,8,<span class="string">'int32=&gt;double'</span>);
+0039     s.Data(cnt,:) = fread(fid,32,<span class="string">'int16=&gt;double'</span>);
+0040     p = ftell(fid);
+0041     waitbar(p/FileBytes,wbh,[<span class="string">'reading data '</span> sprintf(<span class="string">'%1.0f'</span>,cnt) <span class="string">' of '</span> sprintf(<span class="string">'%1.0f'</span>,N)]);
+0042     <span class="keyword">if</span> feof(fid)
+0043         <span class="keyword">break</span>;
+0044     <span class="keyword">end</span>
+0045 <span class="keyword">end</span>
+0046 fclose(fid);
+0047 close(wbh);</pre></div>
+<hr><address>Generated on Thu 25-Mar-2010 13:02:14 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

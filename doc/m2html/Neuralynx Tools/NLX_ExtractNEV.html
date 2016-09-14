@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NLX_ExtractNEV</title>
+  <meta name="keywords" content="NLX_ExtractNEV">
+  <meta name="description" content="Extracts entries from a NEV structure">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Neuralynx Tools</a> &gt; NLX_ExtractNEV.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Neuralynx Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>NLX_ExtractNEV
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Extracts entries from a NEV structure</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function NEV = NLX_ExtractNEV(NEV,Index) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Extracts entries from a NEV structure</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NLX_ReadTrialsFromNEV.html" class="code" title="function [TrialHead,TrialEv] = nlx_ReadTrialsFromNEV(NEV,S,TW)">NLX_ReadTrialsFromNEV</a>	reads trial events according to events defined in settings structure</li><li><a href="NLX_SplitNEV.html" class="code" title="function splitNEV = NLX_SplitNEV(NEV,CuttingWins,SplitOption,SaveFilePrefix)">NLX_SplitNEV</a>	Splits a *.NEV file</li><li><a href="NLX_getEventType.html" class="code" title="function NEV = NLX_getEventType(NEV,EventType)">NLX_getEventType</a>	extract digital/user committed events</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function NEV = NLX_ExtractNEV(NEV,Index)</a>
+0002 
+0003 <span class="comment">% Extracts entries from a NEV structure</span>
+0004 
+0005 <span class="keyword">if</span> ~isempty(NEV.TimeStamps);NEV.TimeStamps=NEV.TimeStamps(:,Index);<span class="keyword">end</span>
+0006 <span class="keyword">if</span> ~isempty(NEV.EventID);NEV.EventID=NEV.EventID(:,Index);<span class="keyword">end</span>
+0007 <span class="keyword">if</span> ~isempty(NEV.TTL);NEV.TTL=NEV.TTL(:,Index);<span class="keyword">end</span>
+0008 <span class="keyword">if</span> ~isempty(NEV.Extras);NEV.Extras=NEV.Extras(:,Index);<span class="keyword">end</span>
+0009 <span class="keyword">if</span> ~isempty(NEV.Eventstring);NEV.Eventstring=NEV.Eventstring(Index,:);<span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 25-Mar-2010 13:02:14 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

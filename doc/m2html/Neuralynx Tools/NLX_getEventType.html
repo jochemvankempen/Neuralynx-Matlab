@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NLX_getEventType</title>
+  <meta name="keywords" content="NLX_getEventType">
+  <meta name="description" content="extract digital/user committed events">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Neuralynx Tools</a> &gt; NLX_getEventType.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Neuralynx Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>NLX_getEventType
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>extract digital/user committed events</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function NEV = NLX_getEventType(NEV,EventType) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> extract digital/user committed events
+ NEV = NLX_getEventType(NEV,EventType)
+ NEV ......... NEV structure, see NLX_LoadNEV.m
+ EventType ... 'user', 'digital'</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NLX_ExtractNEV.html" class="code" title="function NEV = NLX_ExtractNEV(NEV,Index)">NLX_ExtractNEV</a>	Extracts entries from a NEV structure</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function NEV = NLX_getEventType(NEV,EventType)</a>
+0002 
+0003 <span class="comment">% extract digital/user committed events</span>
+0004 <span class="comment">% NEV = NLX_getEventType(NEV,EventType)</span>
+0005 <span class="comment">% NEV ......... NEV structure, see NLX_LoadNEV.m</span>
+0006 <span class="comment">% EventType ... 'user', 'digital'</span>
+0007 
+0008 <span class="comment">%% find user events and digital</span>
+0009 DigEvIdx = regexp(NEV.Eventstring,<span class="string">'RecID:*'</span>);
+0010 DigEvIdx = ~cellfun(<span class="string">'isempty'</span>,DigEvIdx);
+0011 UserEvIdx = ~DigEvIdx;
+0012 
+0013 <span class="comment">%% decide which ones to clear</span>
+0014 <span class="keyword">switch</span> lower(EventType)
+0015     <span class="keyword">case</span> <span class="string">'user'</span>
+0016         NEV = <a href="NLX_ExtractNEV.html" class="code" title="function NEV = NLX_ExtractNEV(NEV,Index)">NLX_ExtractNEV</a>(NEV,UserEvIdx);
+0017     <span class="keyword">case</span> <span class="string">'digital'</span>
+0018         NEV = <a href="NLX_ExtractNEV.html" class="code" title="function NEV = NLX_ExtractNEV(NEV,Index)">NLX_ExtractNEV</a>(NEV,DigEvIdx);
+0019 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 25-Mar-2010 13:02:14 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

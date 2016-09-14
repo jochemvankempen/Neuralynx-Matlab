@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NLX_CheckNEV</title>
+  <meta name="keywords" content="NLX_CheckNEV">
+  <meta name="description" content="Checks an NEV structure for number of Events and existing data.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Neuralynx Tools</a> &gt; NLX_CheckNEV.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Neuralynx Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>NLX_CheckNEV
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Checks an NEV structure for number of Events and existing data.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [NumEvents,FieldArray,FieldCells] = NLX_CheckNEV(NEV) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Checks an NEV structure for number of Events and existing data.
+
+ NEV ... structure (see NLX_loadNEV.m)</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NLX_SaveNEV.html" class="code" title="function NEV = NLX_SaveNEV(NEV,AppendToFile)">NLX_SaveNEV</a>	Writes data to an *.NEV file</li><li><a href="NLX_SplitNEV.html" class="code" title="function splitNEV = NLX_SplitNEV(NEV,CuttingWins,SplitOption,SaveFilePrefix)">NLX_SplitNEV</a>	Splits a *.NEV file</li><li><a href="NLX_findEvents.html" class="code" title="function [TimeStamps,Index,NEV] = NLX_findEvents(NEV,varargin)">NLX_findEvents</a>	Finds event timestamps in a *.NEV file.</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [NumEvents,FieldArray,FieldCells] = NLX_CheckNEV(NEV)</a>
+0002 
+0003 <span class="comment">% Checks an NEV structure for number of Events and existing data.</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">% NEV ... structure (see NLX_loadNEV.m)</span>
+0006 
+0007 FieldCells = {};
+0008 FieldArray = ~[ isempty(NEV.TimeStamps) isempty(NEV.EventID) isempty(NEV.TTL) isempty(NEV.Extras) isempty(NEV.Eventstring) ];
+0009 NumEvents = [ size(NEV.TimeStamps,2) size(NEV.EventID,2) size(NEV.TTL,2) size(NEV.Extras,2) size(NEV.Eventstring,1)];
+0010 NumEvents = unique(NumEvents(FieldArray));
+0011 <span class="keyword">if</span> length(NumEvents)&gt;1
+0012     error(<span class="string">'All field must have same number of spikes!'</span>);
+0013 <span class="keyword">end</span>
+0014 
+0015 <span class="keyword">if</span> nargout==3
+0016     <span class="keyword">if</span> FieldArray(1);FieldCells = cat(2,FieldCells,{NEV.TimeStamps});<span class="keyword">end</span>
+0017     <span class="keyword">if</span> FieldArray(2);FieldCells = cat(2,FieldCells,{NEV.EventID});<span class="keyword">end</span>
+0018     <span class="keyword">if</span> FieldArray(3);FieldCells = cat(2,FieldCells,{NEV.TTL});<span class="keyword">end</span>
+0019     <span class="keyword">if</span> FieldArray(4);FieldCells = cat(2,FieldCells,{NEV.Extras});<span class="keyword">end</span>
+0020     <span class="keyword">if</span> FieldArray(5);FieldCells = cat(2,FieldCells,{NEV.Eventstring});<span class="keyword">end</span>
+0021 <span class="keyword">end</span>
+0022</pre></div>
+<hr><address>Generated on Thu 25-Mar-2010 13:02:14 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

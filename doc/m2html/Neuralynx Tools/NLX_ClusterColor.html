@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NLX_ClusterColor</title>
+  <meta name="keywords" content="NLX_ClusterColor">
+  <meta name="description" content="Coloring for cell clusters">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Neuralynx Tools</a> &gt; NLX_ClusterColor.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Neuralynx Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>NLX_ClusterColor
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Coloring for cell clusters</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function c = NLX_ClusterColor(ClusterNr) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Coloring for cell clusters</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NLX_PlotClusterDrift.html" class="code" title="function NLX_PlotClusterDrift(NSE,ClusterNr,SampleNr,Ylim,PlotMedFlag)">NLX_PlotClusterDrift</a>	Checks for a drift in cluster parameter over time.</li><li><a href="NLX_WaveformHist.html" class="code" title="function NSE = NLX_WaveformHist(NSE,ClusterNr,SampleNr)">NLX_WaveformHist</a>	Plots histogram of waveform values at given sample nr.</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function c = NLX_ClusterColor(ClusterNr)</a>
+0002 
+0003 <span class="comment">% Coloring for cell clusters</span>
+0004 
+0005 c = [ <span class="keyword">...</span>
+0006         .6 .6 .6; <span class="keyword">...</span><span class="comment">                   0 light grey</span>
+0007         1 0 0; <span class="keyword">...</span><span class="comment">                      1 red</span>
+0008         0 1 0; <span class="keyword">...</span><span class="comment">                      2 green</span>
+0009         0    0.7490    1.0000; <span class="keyword">...</span><span class="comment">      3 deep sky blue</span>
+0010         1 0 1; <span class="keyword">...</span><span class="comment">                      4 magenta</span>
+0011         1.0000    0.6471         0; <span class="keyword">...</span><span class="comment"> 5 orange</span>
+0012         0    1.0000    0.4980; <span class="keyword">...</span><span class="comment">      6 spring green</span>
+0013         0 0 1; <span class="keyword">...</span><span class="comment">                      7 blue</span>
+0014         1.0000    0.2706         0; <span class="keyword">...</span><span class="comment"> 8 Orange Red</span>
+0015         0.4863    0.9882         0 <span class="keyword">...</span><span class="comment">  9 Lawn Green</span>
+0016         ]; <span class="keyword">...</span><span class="comment"> </span>
+0017         
+0018  <span class="keyword">if</span> nargin==1
+0019      c = c(ClusterNr+1,:);
+0020  <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 25-Mar-2010 13:02:14 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

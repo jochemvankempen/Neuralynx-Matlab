@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NLX_trialsplitNEV</title>
+  <meta name="keywords" content="NLX_trialsplitNEV">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Neuralynx Tools</a> &gt; NLX_trialsplitNEV.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Neuralynx Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>NLX_trialsplitNEV
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [TrialData,EventData,ParamData] = NLX_trialsplitNEV(NEV,TimeWin,TrialStartSeq,TrialStopSeq,ParamStartSeq,ParamStopSeq) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [TrialData,EventData,ParamData] = NLX_trialsplitNEV(NEV,TimeWin,TrialStartSeq,TrialStopSeq,ParamStartSeq,ParamStopSeq)</a>
+0002 
+0003 TrialData = {};
+0004 EventData = {};
+0005 ParamData = {};
+0006 
+0007 N = length(NEV.TimeStamps);
+0008 <span class="keyword">if</span> isempty(TimeWin)
+0009     IX = find(NEV.TTL&gt;0);
+0010 <span class="keyword">else</span>
+0011     IX = find(NEV.TimeStamps&gt;=TimeWin(1)&amp;NEV.TimeStamps&lt;=TimeWin(2)&amp;NEV.TTL&gt;0);
+0012 <span class="keyword">end</span>
+0013 
+0014 nTrStart = length(TrialStartSeq);
+0015 nTrStop = length(TrialStopSeq);
+0016 nParamSeq = length(ParamStartSeq);
+0017 nIX = length(IX);
+0018 
+0019 TrialNr = zeros(nIX,1);
+0020 ParamNr = zeros(nIX,1);
+0021 
+0022 isParamFlag = logical(0);
+0023 TrCnt = 0;
+0024 i = 1;
+0025 <span class="keyword">while</span> i&lt;=nIX
+0026     
+0027     <span class="keyword">if</span> ~isParamFlag &amp; all(NEV.TTL(IX(i:i+nTrStart-1))==TrialStartSeq)
+0028         TrCnt = TrCnt+1;
+0029         currTrialStartEvent = i;
+0030         currTrialStopEvent = 0;
+0031         currParamStartEvent = cell(nParamSeq);
+0032         currParamStopEvent = cell(nParamSeq);
+0033         ParamRelatedEvents = [];
+0034         
+0035         <span class="keyword">while</span> i&lt;=nIX
+0036             i = i+1;
+0037             <span class="keyword">if</span> ~isParamFlag &amp; all(NEV.TTL(IX(i:i+nTrStop-1))==TrialStopSeq)
+0038                 TrialEnd=1;
+0039                 currTrialStopEvent = i;
+0040                 <span class="keyword">break</span>;
+0041             <span class="keyword">end</span>
+0042             <span class="keyword">for</span> k = 1:nParamSeq
+0043                 cParN = length(ParamStartSeq{k});
+0044                 <span class="keyword">if</span> i&lt;=nIX-(cParN-1) &amp; all(NEV.TTL(IX(i:i+cParN-1))==ParamStartSeq{k});
+0045                     isParamFlag = 1;
+0046                     currParamStartEvent{k} = i+cParN;
+0047                     ParamRelatedEvents = [ParamRelatedEvents i:i+cParN-1];
+0048                 <span class="keyword">end</span>
+0049                 cParN = length(ParamStopSeq{k});
+0050                 <span class="keyword">if</span> i&lt;=nIX-(cParN-1) &amp; all(NEV.TTL(IX(i:i+cParN-1))==ParamStopSeq{k});
+0051                     isParamFlag = 0;
+0052                     currParamStopEvent{k} = i-1;
+0053                     ParamRelatedEvents = [ParamRelatedEvents i:i+cParN-1];
+0054                 <span class="keyword">end</span>
+0055                 
+0056                 <span class="keyword">if</span> isParamFlag
+0057                     ParamRelatedEvents = [ParamRelatedEvents i];
+0058                 <span class="keyword">end</span>
+0059             <span class="keyword">end</span>
+0060         <span class="keyword">end</span>
+0061         
+0062         TrialData{1,TrCnt} = [NEV.TimeStamps(IX(currTrialStartEvent:currTrialStopEvent))' NEV.TTL(IX(currTrialStartEvent:currTrialStopEvent))'];
+0063         EventData{1,TrCnt} = TrialData{1,TrCnt}(~ismember([currTrialStartEvent:currTrialStopEvent],ParamRelatedEvents),:);
+0064         <span class="keyword">for</span> k = 1:nParamSeq
+0065             <span class="keyword">if</span> ~isempty(currParamStartEvent{k})
+0066                 ParamData{k,TrCnt} = [NEV.TimeStamps(IX(currParamStartEvent{k}:currParamStopEvent{k}))' NEV.TTL(IX(currParamStartEvent{k}:currParamStopEvent{k}))'];
+0067             <span class="keyword">end</span>
+0068         <span class="keyword">end</span>
+0069     <span class="keyword">end</span>
+0070     
+0071     i = i+1;
+0072 <span class="keyword">end</span>
+0073 
+0074</pre></div>
+<hr><address>Generated on Thu 25-Mar-2010 13:02:14 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

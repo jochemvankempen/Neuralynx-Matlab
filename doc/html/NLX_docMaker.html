@@ -1,0 +1,199 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Create html files for documentation</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-09-14"><meta name="DC.source" content="NLX_docMaker.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Create html files for documentation</h1><!--introduction--><p>Create html documentation with publish functions</p><p>Run this script as a command.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">publish-functions</a></li><li><a href="#2">publish THIS script</a></li><li><a href="#3">create funclist.m</a></li><li><a href="#4">create toc html-files</a></li><li><a href="#5">create analysis html-files</a></li></ul></div><h2>publish-functions<a name="1"></a></h2><div><ul><li>matlab : publish.m</li><li>Alwins : publishPlusFuncs.m</li></ul></div><p>Options for publish/publishPlusFuncs</p><pre>       format           : 'html' | 'doc' | 'pdf' | 'ppt' | 'xml' | 'latex'
+       stylesheet       : '' | an XSL filename (ignored when format = 'doc', 'pdf', or 'ppt')
+       outputDir        : '' (an html subfolder below the file) | full path
+       imageFormat      : '' (default based on format)  'bmp' | 'eps' | 'epsc' | 'jpeg' | 'meta' | 'png' | 'ps' | 'psc' | 'tiff'
+       figureSnapMethod : 'entireGUIWindow'| 'print' | 'getframe' | 'entireFigureWindow'
+       useNewFigure     : true | false
+       maxHeight        : [] (unrestricted) | positive integer (pixels)
+       maxWidth         : [] (unrestricted) | positive integer (pixels)
+       showCode         : true | false
+       evalCode         : true | false
+       catchError       : true | false
+       createThumbnail  : true | false
+       maxOutputLines   : Inf | non-negative integer
+       codeToEvaluate   : (the file you are publishing) | any valid code</pre><pre class="codeinput">filePath = mfilename(<span class="string">'fullpath'</span>);
+[toolboxFolder,fileName] = fileparts(filePath);
+thisDir = dir(toolboxFolder);
+mFileList = {};
+<span class="keyword">for</span> i=1:length(thisDir)
+    [dumPath,cFileName,cFileExt] = fileparts(thisDir(i).name);
+    <span class="keyword">if</span> ~thisDir(i).isdir &amp;&amp; strcmpi(cFileExt,<span class="string">'.m'</span>)
+        mFileList = cat(1,mFileList,cFileName);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+nFileNum = length(mFileList);
+</pre><h2>publish THIS script<a name="2"></a></h2><pre class="codeinput">opts.format    = <span class="string">'html'</span>;
+opts.outputDir = fullfile(toolboxFolder,<span class="string">'doc'</span>,<span class="string">'html'</span>);
+opts.showCode  = true;
+opts.evalCode  = false;
+
+docPath = publish(filePath,opts);
+</pre><h2>create funclist.m<a name="3"></a></h2><p>fid = fopen(fullfile(toolboxFolder,'doc','m','funclist.m'),'w+'); fprintf(fid,'%%%% Project: LaminarExperiments - Function Reference\n'); fprintf(fid,'%%\n'); fprintf(fid,'%%%% Documentation \n'); fprintf(fid,'%%\n'); fprintf(fid,'%% * <a href="%s.html">%s</a>\n',fileName,fileName); fprintf(fid,'%%\n'); fprintf(fid,'%%%% Functions \n'); for i=1:nFileNum     fprintf(fid,'%% * <a href="%s.html">%s</a>\n',mFileList{i},mFileList{i}); %     fprintf(fid,'%% * <a href="%s_plusfuncs.html">%s</a>\n',mFileList{i},mFileList{i});     % TODO: extract functions docstring here end fclose(fid);</p><h2>create toc html-files<a name="4"></a></h2><p>Create TOC files for helptoc.xml.</p><pre class="codeinput">opts.format    = <span class="string">'html'</span>;
+opts.outputDir = fullfile(toolboxFolder,<span class="string">'doc'</span>,<span class="string">'html'</span>);
+opts.showCode  = false;
+opts.evalCode  = false;
+
+docPath = publish(fullfile(toolboxFolder,<span class="string">'doc'</span>,<span class="string">'m'</span>,<span class="string">'myToolbox.m'</span>),opts);
+<span class="comment">% docPath = publish(fullfile(toolboxFolder,'doc','m','funclist.m'),opts);</span>
+docPath = publish(fullfile(toolboxFolder,<span class="string">'doc'</span>,<span class="string">'m'</span>,<span class="string">'myExample.m'</span>),opts);
+</pre><h2>create analysis html-files<a name="5"></a></h2><p>Create analysis files. opts.outputDir    = fullfile(toolboxFolder,'doc','html'); opts.showCode     = false; opts.evalCode     = false; opts.useNewFigure = false; for i=1:nFileNum     fprintf(1,'publishing %s\n',sprintf('%s.m',mFileList{i}));     publish(fullfile(toolboxFolder,sprintf('%s.m',mFileList{i})),opts); %     publishPlusFuncs(fullfile(toolboxFolder,sprintf('%s.m',mFileList{i})),opts); end</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Create html files for documentation
+% Create html documentation with publish functions
+%
+% Run this script as a command.
+%
+%%% publish-functions
+%
+% * matlab : publish.m 
+% * Alwins : publishPlusFuncs.m
+% 
+% Options for publish/publishPlusFuncs
+%
+%         format           : 'html' | 'doc' | 'pdf' | 'ppt' | 'xml' | 'latex'
+%         stylesheet       : '' | an XSL filename (ignored when format = 'doc', 'pdf', or 'ppt')
+%         outputDir        : '' (an html subfolder below the file) | full path
+%         imageFormat      : '' (default based on format)  'bmp' | 'eps' | 'epsc' | 'jpeg' | 'meta' | 'png' | 'ps' | 'psc' | 'tiff'
+%         figureSnapMethod : 'entireGUIWindow'| 'print' | 'getframe' | 'entireFigureWindow'
+%         useNewFigure     : true | false
+%         maxHeight        : [] (unrestricted) | positive integer (pixels)
+%         maxWidth         : [] (unrestricted) | positive integer (pixels)
+%         showCode         : true | false
+%         evalCode         : true | false
+%         catchError       : true | false
+%         createThumbnail  : true | false
+%         maxOutputLines   : Inf | non-negative integer
+%         codeToEvaluate   : (the file you are publishing) | any valid code
+%
+
+filePath = mfilename('fullpath');
+[toolboxFolder,fileName] = fileparts(filePath);
+thisDir = dir(toolboxFolder);
+mFileList = {};
+for i=1:length(thisDir)
+    [dumPath,cFileName,cFileExt] = fileparts(thisDir(i).name);
+    if ~thisDir(i).isdir && strcmpi(cFileExt,'.m')
+        mFileList = cat(1,mFileList,cFileName);
+    end
+end
+nFileNum = length(mFileList);
+
+%% publish THIS script
+opts.format    = 'html';
+opts.outputDir = fullfile(toolboxFolder,'doc','html');
+opts.showCode  = true;
+opts.evalCode  = false;
+
+docPath = publish(filePath,opts);
+
+%% create funclist.m
+% fid = fopen(fullfile(toolboxFolder,'doc','m','funclist.m'),'w+');
+% fprintf(fid,'%%%% Project: LaminarExperiments - Function Reference\n');
+% fprintf(fid,'%%\n');
+% fprintf(fid,'%%%% Documentation \n');
+% fprintf(fid,'%%\n');
+% fprintf(fid,'%% * <%s.html %s>\n',fileName,fileName);
+% fprintf(fid,'%%\n');
+% fprintf(fid,'%%%% Functions \n');
+% for i=1:nFileNum
+%     fprintf(fid,'%% * <%s.html %s>\n',mFileList{i},mFileList{i});
+% %     fprintf(fid,'%% * <%s_plusfuncs.html %s>\n',mFileList{i},mFileList{i});
+%     % TODO: extract functions docstring here
+% end
+% fclose(fid);
+
+%% create toc html-files
+% Create TOC files for helptoc.xml.
+
+opts.format    = 'html';
+opts.outputDir = fullfile(toolboxFolder,'doc','html');
+opts.showCode  = false;
+opts.evalCode  = false;
+
+docPath = publish(fullfile(toolboxFolder,'doc','m','myToolbox.m'),opts);
+% docPath = publish(fullfile(toolboxFolder,'doc','m','funclist.m'),opts);
+docPath = publish(fullfile(toolboxFolder,'doc','m','myExample.m'),opts);
+
+%% create analysis html-files
+% Create analysis files.
+% opts.outputDir    = fullfile(toolboxFolder,'doc','html');
+% opts.showCode     = false;
+% opts.evalCode     = false;
+% opts.useNewFigure = false;
+% for i=1:nFileNum
+%     fprintf(1,'publishing %s\n',sprintf('%s.m',mFileList{i}));
+%     publish(fullfile(toolboxFolder,sprintf('%s.m',mFileList{i})),opts);
+% %     publishPlusFuncs(fullfile(toolboxFolder,sprintf('%s.m',mFileList{i})),opts);
+% end
+
+
+##### SOURCE END #####
+--></body></html>

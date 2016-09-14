@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NLX_LoadNEV</title>
+  <meta name="keywords" content="NLX_LoadNEV">
+  <meta name="description" content="Loads a *.nse file into a matlab structure">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Neuralynx Tools</a> &gt; NLX_LoadNEV.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Neuralynx Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>NLX_LoadNEV
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Loads a *.nse file into a matlab structure</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function NEV = NLX_LoadNEV(NEVpath,FieldOption,ExtractMode,ExtractArray) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Loads a *.nse file into a matlab structure
+
+ NEV = NLX_LoadNEV(NEVpath,FieldOption,ExtractMode,ExtractArray)
+
+ INPUT:
+ NEVpath ... full filepath, windows gui popup if empty
+ FieldOption .... 'HEADER' - Only header
+                  'TTL' - Timestamps and TTL
+                  'TTL+' - Timestamps and TTL and EVENTSTRING
+                  'EVENTSTRING' - Timestamps and EVENTSTRING
+                  'FULL' - Loads the full file dataset
+ ExtractMode .... 1 Extract All [] 
+                  2 Extract Record Index Range [1stRec-1 lastRec-1]
+                  3 Extract Record Index List [RecNr-1 ...] 
+                  4 Extract Timestamp Range [StartStamp EndStamp] 
+                  5 Extract Timestamp List [StampVal1 StampVal2 ...]
+ ExtractArray ... Mode 1  [] 
+                  Mode 2  [1stRec-1 lastRec-1]
+                  Mode 3  [RecNr-1 ...] 
+                  Mode 4  [StartStamp EndStamp] 
+                  Mode 5  [StampVal1 StampVal2 ...]
+
+ OUTPUT:
+ NEV.Path ............ Full path of the original data file
+ NEV.Header .......... Cellarray of strings [NumRows x 1], amplification
+                       parameter
+ NEV.TimeStamps ...... [1 x NumEvents] microseconds (10^-6s)
+ NEV.EventID ............ [1 x NumEvents] 
+ NEV.TTL ....... [1 x NumEvents]
+ NEV.Extras ... [8 x NumEvents] Featurvalues for each spike
+ NEV.Eventstring ... [NumEvents x 1] cell array of strings</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NLX_AddEvents.html" class="code" title="function NEV = NLX_AddEvents(NEV,Timestamps,Eventstring,SaveSuffix);">NLX_AddEvents</a>	adds events to an existing eventfile</li><li><a href="NLX_NEV2Trials.html" class="code" title="function [Events,ConditionData,ParamData,UserEv] = NLX_NEV2Trials(NEVpath,NLXTime,TrialWinEv,CndEvSeq,ParamEvSeq)">NLX_NEV2Trials</a>	Extract trials from an neuralynx event file.</li><li><a href="NLX_SplitNEV.html" class="code" title="function splitNEV = NLX_SplitNEV(NEV,CuttingWins,SplitOption,SaveFilePrefix)">NLX_SplitNEV</a>	Splits a *.NEV file</li><li><a href="NLX_findEvents.html" class="code" title="function [TimeStamps,Index,NEV] = NLX_findEvents(NEV,varargin)">NLX_findEvents</a>	Finds event timestamps in a *.NEV file.</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function NEV = NLX_LoadNEV(NEVpath,FieldOption,ExtractMode,ExtractArray)</a>
+0002 
+0003 <span class="comment">% Loads a *.nse file into a matlab structure</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">% NEV = NLX_LoadNEV(NEVpath,FieldOption,ExtractMode,ExtractArray)</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">% INPUT:</span>
+0008 <span class="comment">% NEVpath ... full filepath, windows gui popup if empty</span>
+0009 <span class="comment">% FieldOption .... 'HEADER' - Only header</span>
+0010 <span class="comment">%                  'TTL' - Timestamps and TTL</span>
+0011 <span class="comment">%                  'TTL+' - Timestamps and TTL and EVENTSTRING</span>
+0012 <span class="comment">%                  'EVENTSTRING' - Timestamps and EVENTSTRING</span>
+0013 <span class="comment">%                  'FULL' - Loads the full file dataset</span>
+0014 <span class="comment">% ExtractMode .... 1 Extract All []</span>
+0015 <span class="comment">%                  2 Extract Record Index Range [1stRec-1 lastRec-1]</span>
+0016 <span class="comment">%                  3 Extract Record Index List [RecNr-1 ...]</span>
+0017 <span class="comment">%                  4 Extract Timestamp Range [StartStamp EndStamp]</span>
+0018 <span class="comment">%                  5 Extract Timestamp List [StampVal1 StampVal2 ...]</span>
+0019 <span class="comment">% ExtractArray ... Mode 1  []</span>
+0020 <span class="comment">%                  Mode 2  [1stRec-1 lastRec-1]</span>
+0021 <span class="comment">%                  Mode 3  [RecNr-1 ...]</span>
+0022 <span class="comment">%                  Mode 4  [StartStamp EndStamp]</span>
+0023 <span class="comment">%                  Mode 5  [StampVal1 StampVal2 ...]</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">% OUTPUT:</span>
+0026 <span class="comment">% NEV.Path ............ Full path of the original data file</span>
+0027 <span class="comment">% NEV.Header .......... Cellarray of strings [NumRows x 1], amplification</span>
+0028 <span class="comment">%                       parameter</span>
+0029 <span class="comment">% NEV.TimeStamps ...... [1 x NumEvents] microseconds (10^-6s)</span>
+0030 <span class="comment">% NEV.EventID ............ [1 x NumEvents]</span>
+0031 <span class="comment">% NEV.TTL ....... [1 x NumEvents]</span>
+0032 <span class="comment">% NEV.Extras ... [8 x NumEvents] Featurvalues for each spike</span>
+0033 <span class="comment">% NEV.Eventstring ... [NumEvents x 1] cell array of strings</span>
+0034 
+0035 NEV.Path = <span class="string">''</span>;
+0036 NEV.Header = [];
+0037 NEV.TimeStamps = [];
+0038 NEV.EventID = [];
+0039 NEV.TTL = [];
+0040 NEV.Extras = [];
+0041 NEV.Eventstring = {};
+0042 
+0043 ExtractHeader = 1;
+0044 
+0045 <span class="comment">% check input</span>
+0046 <span class="keyword">if</span> nargin &lt; 1 | isempty(NEVpath)
+0047     [filename,pathname] = uigetfile(<span class="string">'*.nev'</span>,<span class="string">'load Neuralynx *.NEV data file'</span>);
+0048     NEVpath = fullfile(pathname,filename);
+0049     <span class="keyword">if</span> ~filename;<span class="keyword">return</span>;<span class="keyword">end</span>
+0050 <span class="keyword">end</span>
+0051 NEV.Path = NEVpath;
+0052 <span class="keyword">if</span> nargin&lt;2 | isempty(FieldOption);FieldOption = <span class="string">'HEADER'</span>;<span class="keyword">end</span>
+0053 <span class="keyword">if</span> nargin&lt;3 | isempty(ExtractMode);ExtractMode = 1;ExtractArray=[];<span class="keyword">end</span>
+0054 <span class="keyword">if</span> nargin&lt;5 | isempty(EchoOff);EchoOff = 0;<span class="keyword">end</span>
+0055 
+0056 <span class="keyword">switch</span> upper(FieldOption)
+0057     <span class="keyword">case</span> <span class="string">'HEADER'</span> ; FieldArray = [0 0 0 0 0];[NEV.Header] = Nlx2MatEV(NEVpath,FieldArray,ExtractHeader,ExtractMode,ExtractArray);
+0058     <span class="keyword">case</span> <span class="string">'TTL'</span> ; FieldArray = [1 0 1 0 0];[NEV.TimeStamps,NEV.TTL,NEV.Header] = Nlx2MatEV(NEVpath,FieldArray,ExtractHeader,ExtractMode,ExtractArray);
+0059     <span class="keyword">case</span> <span class="string">'TTL+'</span> ; FieldArray = [1 0 1 0 1];[NEV.TimeStamps,NEV.TTL,NEV.Eventstring,NEV.Header] = Nlx2MatEV(NEVpath,FieldArray,ExtractHeader,ExtractMode,ExtractArray);
+0060     <span class="keyword">case</span> <span class="string">'EVENTSTRING'</span> ; FieldArray = [1 0 0 0 1];[NEV.TimeStamps,NEV.Eventstring,NEV.Header] = Nlx2MatEV(NEVpath,FieldArray,ExtractHeader,ExtractMode,ExtractArray);
+0061     <span class="keyword">case</span> <span class="string">'FULL'</span> ; FieldArray = [1 1 1 1 1];[NEV.TimeStamps,NEV.EventID,NEV.TTL,NEV.Extras,NEV.Eventstring,NEV.Header] = Nlx2MatEV(NEVpath,FieldArray,ExtractHeader,ExtractMode,ExtractArray);
+0062     <span class="keyword">otherwise</span>
+0063         FieldArray = [0 0 0 0 0];[NEV.Header] = Nlx2MatEV(NEVpath,FieldArray,ExtractHeader,1,ExtractArray);
+0064 <span class="keyword">end</span>
+0065 
+0066 
+0067         
+0068</pre></div>
+<hr><address>Generated on Thu 25-Mar-2010 13:02:14 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NLX_extractNCS</title>
+  <meta name="keywords" content="NLX_extractNCS">
+  <meta name="description" content="Extracts data from an NCS structure.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Neuralynx Tools</a> &gt; NLX_extractNCS.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Neuralynx Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>NLX_extractNCS
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Extracts data from an NCS structure.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [NCS,Samples,Times] = NLX_extractNCS(NCS,NLXTime) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Extracts data from an NCS structure.
+ INPUT
+ NCS ........ structure, see NLX_loadNCS
+ NLXTime .... time window 
+ OUTPUT
+ NCS ......... NCS structure containing data in time window
+ Samples ..... vector of samples
+ Times ....... vector timestamps in microseconds</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NLX_timerangeNCS.html" class="code" title="function t = NLX_timerangeNCS(NCS)">NLX_timerangeNCS</a>	returns the time of first and last sample</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NLX_SplitNCS.html" class="code" title="function splitNCS = NLX_SplitNCS(NCS,CuttingWins,SplitOption,SaveFilePrefix)">NLX_SplitNCS</a>	Splits a *.NCS file</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function NCS = cutcolumns(NCS,index)</a></li></ul>
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [NCS,Samples,Times] = NLX_extractNCS(NCS,NLXTime)</a>
+0002 
+0003 <span class="comment">% Extracts data from an NCS structure.</span>
+0004 <span class="comment">% INPUT</span>
+0005 <span class="comment">% NCS ........ structure, see NLX_loadNCS</span>
+0006 <span class="comment">% NLXTime .... time window</span>
+0007 <span class="comment">% OUTPUT</span>
+0008 <span class="comment">% NCS ......... NCS structure containing data in time window</span>
+0009 <span class="comment">% Samples ..... vector of samples</span>
+0010 <span class="comment">% Times ....... vector timestamps in microseconds</span>
+0011 
+0012 <span class="keyword">if</span> nargin&lt;2 | isempty(NLXTime)
+0013     NLXTime = <a href="NLX_timerangeNCS.html" class="code" title="function t = NLX_timerangeNCS(NCS)">NLX_timerangeNCS</a>(NCS);
+0014 <span class="keyword">end</span>
+0015 Samples = [];Times = [];
+0016 
+0017 <span class="comment">% find timestamps; mind that NCS.TimeStamps</span>
+0018 <span class="comment">% format is a vector and NCS.Samples is matrix</span>
+0019 index = find(NCS.TimeStamps&gt;=NLXTime(1) &amp; NCS.TimeStamps&lt;=NLXTime(2));
+0020 <span class="keyword">if</span> isempty(index) &amp; (all(NLXTime&lt;NCS.TimeStamps(1))||all(NLXTime&gt;NCS.TimeStamps(end)));
+0021     <span class="comment">% NLXTime is not in timestamp range</span>
+0022     index = zeros(length(NCS.TimeStamps));
+0023     warning(<span class="string">'Can''t find samples in the given time window !'</span>);
+0024 <span class="keyword">elseif</span> isempty(index) &amp; ~(all(NLXTime&lt;NCS.TimeStamps(1))||all(NLXTime&gt;NCS.TimeStamps(end)));
+0025     <span class="comment">% NLXTime is between two timestamp &quot;columns&quot;</span>
+0026     index = find(NCS.TimeStamps&lt;NLXTime(1));
+0027     index = index(end);
+0028     NCS = <a href="#_sub1" class="code" title="subfunction NCS = cutcolumns(NCS,index)">cutcolumns</a>(NCS,index);
+0029 <span class="keyword">elseif</span> ~isempty(index)
+0030     <span class="comment">% include the next lowest highest sample &quot;column&quot;</span>
+0031     <span class="keyword">if</span> index(1)&gt;1;index = [index(1)-1 index];<span class="keyword">end</span>
+0032     <span class="keyword">if</span> length(NCS.TimeStamps)&gt;index(end);index = [index index(end)+1];<span class="keyword">end</span>
+0033     NCS = <a href="#_sub1" class="code" title="subfunction NCS = cutcolumns(NCS,index)">cutcolumns</a>(NCS,index);
+0034 <span class="keyword">end</span>
+0035 
+0036 <span class="keyword">if</span> nargout==1;<span class="keyword">return</span>;<span class="keyword">end</span>
+0037 
+0038 <span class="comment">% extract data to arrays</span>
+0039 [SampleRows,SampleCols] = size(NCS.Samples);
+0040 NCS.TimeStamps = repmat(NCS.TimeStamps,[SampleRows 1]) + repmat([0:SampleRows-1]',[1 SampleCols]) .* repmat(round(1000000./NCS.SF),[SampleRows 1]);
+0041 index = find(NCS.TimeStamps&gt;=NLXTime(1) &amp; NCS.TimeStamps&lt;=NLXTime(2));
+0042 Samples = NCS.Samples(index);
+0043 Times = NCS.TimeStamps(index);
+0044 
+0045 <a name="_sub1" href="#_subfunctions" class="code">function NCS = cutcolumns(NCS,index)</a>
+0046 <span class="comment">% reduce to time window before calculations;</span>
+0047 NCS.TimeStamps = NCS.TimeStamps(index);
+0048 NCS.ChNr = NCS.ChNr(index);
+0049 NCS.SF = NCS.SF(index);
+0050 NCS.ValidSampleNum = NCS.ValidSampleNum(index);
+0051 NCS.Samples = NCS.Samples(:,index);
+0052</pre></div>
+<hr><address>Generated on Thu 25-Mar-2010 13:02:14 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

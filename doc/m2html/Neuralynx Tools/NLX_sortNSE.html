@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NLX_sortNSE</title>
+  <meta name="keywords" content="NLX_sortNSE">
+  <meta name="description" content="Remove duplicate TimeStamps and sorts Timestamps">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Neuralynx Tools</a> &gt; NLX_sortNSE.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Neuralynx Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>NLX_sortNSE
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Remove duplicate TimeStamps and sorts Timestamps</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function NSE = NLX_sortNSE(NSE) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Remove duplicate TimeStamps and sorts Timestamps</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NLX_DeleteNSE.html" class="code" title="function NSE = NLX_DeleteNSE(NSE,Index)">NLX_DeleteNSE</a>	Deletes entries from a NSE structure</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NLX_PlotClusterDrift.html" class="code" title="function NLX_PlotClusterDrift(NSE,ClusterNr,SampleNr,Ylim,PlotMedFlag)">NLX_PlotClusterDrift</a>	Checks for a drift in cluster parameter over time.</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function NSE = NLX_sortNSE(NSE)</a>
+0002 
+0003 <span class="comment">% Remove duplicate TimeStamps and sorts Timestamps</span>
+0004 
+0005 <span class="comment">% sort data</span>
+0006 [NSE.TimeStamps,SortIndex] = sort(NSE.TimeStamps);
+0007 <span class="keyword">if</span> ~isempty(NSE.ScNr);NSE.ScNr = NSE.ScNr(SortIndex);<span class="keyword">end</span>;
+0008 <span class="keyword">if</span> ~isempty(NSE.ClusterNr);NSE.ClusterNr = NSE.ClusterNr(SortIndex);<span class="keyword">end</span>;
+0009 <span class="keyword">if</span> ~isempty(NSE.SpikeFeatures);NSE.SpikeFeatures = NSE.SpikeFeatures(:,SortIndex);<span class="keyword">end</span>;
+0010 <span class="keyword">if</span> ~isempty(NSE.SpikeWaveForm);NSE.SpikeWaveForm = NSE.SpikeWaveForm(:,:,SortIndex);<span class="keyword">end</span>;
+0011 
+0012 <span class="comment">% search for duplicate timestamps</span>
+0013 DupliSpikes = find(diff(NSE.TimeStamps)==0);
+0014 
+0015 <span class="comment">% delete the second of duplicate spikes</span>
+0016 <span class="keyword">if</span> ~isempty(DupliSpikes)
+0017     NSE = <a href="NLX_DeleteNSE.html" class="code" title="function NSE = NLX_DeleteNSE(NSE,Index)">NLX_DeleteNSE</a>(NSE,DupliSpikes+1);
+0018     disp([<span class="string">'Deleted '</span> num2str(length(DupliSpikes)) <span class="string">' duplicate spikes'</span>]); 
+0019 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 25-Mar-2010 13:02:14 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

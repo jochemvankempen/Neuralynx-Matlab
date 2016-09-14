@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NLX_AddEvents</title>
+  <meta name="keywords" content="NLX_AddEvents">
+  <meta name="description" content="adds events to an existing eventfile">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Neuralynx Tools</a> &gt; NLX_AddEvents.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Neuralynx Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>NLX_AddEvents
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>adds events to an existing eventfile</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function NEV = NLX_AddEvents(NEV,Timestamps,Eventstring,SaveSuffix); </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> adds events to an existing eventfile
+
+ NEV = NLX_AddEvents(NEV,Timestamps,Eventstring,SaveSuffix)
+ NEV ................ Can be an NEV structure or a full filepath
+ Timestamps ......... Timestamps of the events to add
+ Eventstring ........ Cell Array of Eventstrings
+ SaveSuffix ......... Saves changed NEV file [fName.SaveSuffix.NEV] Omit to not save.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NLX_LoadNEV.html" class="code" title="function NEV = NLX_LoadNEV(NEVpath,FieldOption,ExtractMode,ExtractArray)">NLX_LoadNEV</a>	Loads a *.nse file into a matlab structure</li><li><a href="NLX_SaveNEV.html" class="code" title="function NEV = NLX_SaveNEV(NEV,AppendToFile)">NLX_SaveNEV</a>	Writes data to an *.NEV file</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function NEV = NLX_AddEvents(NEV,Timestamps,Eventstring,SaveSuffix);</a>
+0002 
+0003 <span class="comment">% adds events to an existing eventfile</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">% NEV = NLX_AddEvents(NEV,Timestamps,Eventstring,SaveSuffix)</span>
+0006 <span class="comment">% NEV ................ Can be an NEV structure or a full filepath</span>
+0007 <span class="comment">% Timestamps ......... Timestamps of the events to add</span>
+0008 <span class="comment">% Eventstring ........ Cell Array of Eventstrings</span>
+0009 <span class="comment">% SaveSuffix ......... Saves changed NEV file [fName.SaveSuffix.NEV] Omit to not save.</span>
+0010 
+0011 <span class="keyword">if</span> ischar(NEV)
+0012     NEVpath = NEV;
+0013     NEV = <a href="NLX_LoadNEV.html" class="code" title="function NEV = NLX_LoadNEV(NEVpath,FieldOption,ExtractMode,ExtractArray)">NLX_LoadNEV</a>(NEVpath,<span class="string">'full'</span>,1,[]);
+0014 <span class="keyword">else</span>
+0015     NEVpath = NEV.Path;
+0016 <span class="keyword">end</span>
+0017 [fDir,fName,fExt] = fileparts(NEVpath);
+0018 
+0019 <span class="comment">%*************************</span>
+0020 <span class="comment">% concatenate</span>
+0021 <span class="comment">%*************************</span>
+0022 EventNum = length(Timestamps);
+0023 NEV.TimeStamps = cat(2,NEV.TimeStamps,Timestamps);
+0024 NEV.EventID = cat(2,NEV.EventID,zeros(1,EventNum));
+0025 NEV.TTL = cat(2,NEV.TTL,zeros(1,EventNum));
+0026 NEV.Extras = cat(2,NEV.Extras,zeros(8,EventNum));
+0027 NEV.Eventstring = cat(1,NEV.Eventstring,Eventstring);
+0028 
+0029 <span class="comment">%*************************</span>
+0030 <span class="comment">% resort</span>
+0031 <span class="comment">%*************************</span>
+0032 [NEV.TimeStamps,SortIndex] = sort(NEV.TimeStamps);
+0033 NEV.EventID = NEV.EventID(SortIndex);
+0034 NEV.TTL = NEV.TTL(SortIndex);
+0035 NEV.Extras = NEV.Extras(:,SortIndex);
+0036 NEV.Eventstring = NEV.Eventstring(SortIndex);
+0037 
+0038 <span class="comment">%*************************</span>
+0039 <span class="comment">% save</span>
+0040 <span class="comment">%*************************</span>
+0041 <span class="keyword">if</span> nargin&gt;2 &amp; ischar(SaveSuffix)
+0042     <span class="keyword">if</span> isempty(SaveSuffix);SaveSuffix = <span class="string">'OFF'</span>;<span class="keyword">end</span>
+0043     NEVSavePath = fullfile(fDir,[fName <span class="string">'.'</span> SaveSuffix fExt]);
+0044     NEV.Path = NEVSavePath;
+0045     NEV = <a href="NLX_SaveNEV.html" class="code" title="function NEV = NLX_SaveNEV(NEV,AppendToFile)">NLX_SaveNEV</a>(NEV,0);
+0046 <span class="keyword">end</span>
+0047 
+0048</pre></div>
+<hr><address>Generated on Thu 25-Mar-2010 13:02:14 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

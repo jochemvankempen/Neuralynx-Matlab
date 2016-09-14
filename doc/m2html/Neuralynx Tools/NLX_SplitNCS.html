@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NLX_SplitNCS</title>
+  <meta name="keywords" content="NLX_SplitNCS">
+  <meta name="description" content="Splits a *.NCS file">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Neuralynx Tools</a> &gt; NLX_SplitNCS.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Neuralynx Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>NLX_SplitNCS
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Splits a *.NCS file</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function splitNCS = NLX_SplitNCS(NCS,CuttingWins,SplitOption,SaveFilePrefix) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Splits a *.NCS file
+
+ NCS ............... structure (see NLX_loadNCS.m)
+ CuttingWins ....... [lower time , upper time], every row cuts a new file
+ SplitOption ....... 'SINGLE' - separate new NCS files; 'MERGE' - one new NCS file
+ SaveFilePrefix ... cell array of strings, prefix for save files, suffix of files is the original
+                     *.NCS file name, if empty no files will be saved</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NLX_CheckNCS.html" class="code" title="function [NumSamples,FieldArray,FieldCells] = NLX_CheckNCS(NCS)">NLX_CheckNCS</a>	Checks an NCS structure for number of spikes and existing data.</li><li><a href="NLX_LoadNCS.html" class="code" title="function NCS = NLX_LoadNCS(NCSpath,FieldOption,ExtractMode,ExtractArray)">NLX_LoadNCS</a>	Loads a *.ncs file into a matlab structure</li><li><a href="NLX_SaveNCS.html" class="code" title="function NCS = NLX_SaveNCS(NCS,AppendToFile)">NLX_SaveNCS</a>	Writes data to an *.NCS file</li><li><a href="NLX_extractNCS.html" class="code" title="function [NCS,Samples,Times] = NLX_extractNCS(NCS,NLXTime)">NLX_extractNCS</a>	Extracts data from an NCS structure.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function splitNCS = NLX_SplitNCS(NCS,CuttingWins,SplitOption,SaveFilePrefix)</a>
+0002 
+0003 <span class="comment">% Splits a *.NCS file</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">% NCS ............... structure (see NLX_loadNCS.m)</span>
+0006 <span class="comment">% CuttingWins ....... [lower time , upper time], every row cuts a new file</span>
+0007 <span class="comment">% SplitOption ....... 'SINGLE' - separate new NCS files; 'MERGE' - one new NCS file</span>
+0008 <span class="comment">% SaveFilePrefix ... cell array of strings, prefix for save files, suffix of files is the original</span>
+0009 <span class="comment">%                     *.NCS file name, if empty no files will be saved</span>
+0010 
+0011 <span class="keyword">if</span> isempty(NCS)
+0012     disp(<span class="string">'Load *.NCS file'</span>);
+0013     NCS = <a href="NLX_LoadNCS.html" class="code" title="function NCS = NLX_LoadNCS(NCSpath,FieldOption,ExtractMode,ExtractArray)">NLX_LoadNCS</a>([],<span class="string">'FULL'</span>,1,[]);
+0014     <span class="keyword">if</span> isempty(NCS.Path);<span class="keyword">return</span>;<span class="keyword">end</span>
+0015 <span class="keyword">end</span>
+0016 
+0017 [NumSamples,FieldArray] = <a href="NLX_CheckNCS.html" class="code" title="function [NumSamples,FieldArray,FieldCells] = NLX_CheckNCS(NCS)">NLX_CheckNCS</a>(NCS);
+0018 
+0019 <span class="comment">% extract</span>
+0020 <span class="keyword">switch</span> SplitOption
+0021     
+0022     <span class="keyword">case</span> <span class="string">'SINGLE'</span>
+0023         <span class="keyword">for</span> i = 1:size(CuttingWins,1);
+0024             splitNCS(i) = <a href="NLX_extractNCS.html" class="code" title="function [NCS,Samples,Times] = NLX_extractNCS(NCS,NLXTime)">NLX_extractNCS</a>(NCS,CuttingWins(i,:));
+0025         <span class="keyword">end</span>
+0026         
+0027 <span class="comment">%     case 'MERGE'</span>
+0028 <span class="comment">%         for i = 1:size(CuttingWins,1);</span>
+0029 <span class="comment">%             Index(NLX_findEvents(NCS,'TIMEWINDOW',CuttingWins(i,:))) = 1;</span>
+0030 <span class="comment">%         end</span>
+0031 <span class="comment">%         splitNCS = NLX_ExtractNCS(NCS,Index);</span>
+0032         
+0033 <span class="keyword">end</span>
+0034 
+0035 
+0036 <span class="comment">% save files</span>
+0037 <span class="keyword">if</span> nargin&lt;4 | isempty(SaveFilePrefix);<span class="keyword">return</span>;<span class="keyword">end</span>
+0038 [currNLXDir,currNLXName,currNLXExt] = fileparts(NCS.Path);
+0039 <span class="keyword">for</span> i=1:length(splitNCS)
+0040     splitNCS(i).Path = [SaveFilePrefix{i} <span class="string">'.'</span> currNLXName currNLXExt];
+0041     fprintf(1,[<span class="string">'Write '</span> strrep(splitNCS(i).Path,<span class="string">'\'</span>,<span class="string">'\\'</span>) <span class="string">' ...\n'</span>]);
+0042     <a href="NLX_SaveNCS.html" class="code" title="function NCS = NLX_SaveNCS(NCS,AppendToFile)">NLX_SaveNCS</a>(splitNCS(i),0);
+0043 <span class="keyword">end</span>
+0044 fprintf(1,<span class="string">'Done\n'</span>);</pre></div>
+<hr><address>Generated on Thu 25-Mar-2010 13:02:14 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

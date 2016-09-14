@@ -1,0 +1,203 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NLX_NEV2Trials</title>
+  <meta name="keywords" content="NLX_NEV2Trials">
+  <meta name="description" content="Extract trials from an neuralynx event file.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Neuralynx Tools</a> &gt; NLX_NEV2Trials.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Neuralynx Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>NLX_NEV2Trials
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Extract trials from an neuralynx event file.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [Events,ConditionData,ParamData,UserEv] = NLX_NEV2Trials(NEVpath,NLXTime,TrialWinEv,CndEvSeq,ParamEvSeq) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Extract trials from an neuralynx event file.
+ [Events,ConditionData,ParamData,UserEv] = NLX_NEV2Trials(NEVpath,NLXTime,TrialWinEv,CndEvSeq,ParamEvSeq)
+ INPUT:
+ NEVpath .............. path to events *.nev file
+ NLXTime .............. time window to look for events
+ TrialWinEv ........... {[trial start sequence] [trial stop sequence]}
+ CndEvSeq ............. {[trial start sequence] [trial stop sequence]}
+ ParamEvSeq ........... {[trial start sequence] [trial stop sequence]}
+ OUTPUT
+ Events .......... cell(N)
+ ConditionData ... 
+ ParamData .......</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NLX_LoadNEV.html" class="code" title="function NEV = NLX_LoadNEV(NEVpath,FieldOption,ExtractMode,ExtractArray)">NLX_LoadNEV</a>	Loads a *.nse file into a matlab structure</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [Events,ConditionData,ParamData,UserEv] = NLX_NEV2Trials(NEVpath,NLXTime,TrialWinEv,CndEvSeq,ParamEvSeq)</a>
+0002 
+0003 <span class="comment">% Extract trials from an neuralynx event file.</span>
+0004 <span class="comment">% [Events,ConditionData,ParamData,UserEv] = NLX_NEV2Trials(NEVpath,NLXTime,TrialWinEv,CndEvSeq,ParamEvSeq)</span>
+0005 <span class="comment">% INPUT:</span>
+0006 <span class="comment">% NEVpath .............. path to events *.nev file</span>
+0007 <span class="comment">% NLXTime .............. time window to look for events</span>
+0008 <span class="comment">% TrialWinEv ........... {[trial start sequence] [trial stop sequence]}</span>
+0009 <span class="comment">% CndEvSeq ............. {[trial start sequence] [trial stop sequence]}</span>
+0010 <span class="comment">% ParamEvSeq ........... {[trial start sequence] [trial stop sequence]}</span>
+0011 <span class="comment">% OUTPUT</span>
+0012 <span class="comment">% Events .......... cell(N)</span>
+0013 <span class="comment">% ConditionData ...</span>
+0014 <span class="comment">% ParamData .......</span>
+0015 
+0016 Events = {};
+0017 ConditionData = {};
+0018 ParamData = {};
+0019 AllEv = {};
+0020 
+0021 <span class="comment">%% read events *.nev file</span>
+0022 NEV = <a href="NLX_LoadNEV.html" class="code" title="function NEV = NLX_LoadNEV(NEVpath,FieldOption,ExtractMode,ExtractArray)">NLX_LoadNEV</a>(NEVpath,<span class="string">'TTL+'</span>,4,NLXTime);
+0023 NEV.TimeStamps = NEV.TimeStamps(:);
+0024 NEV.TTL = NEV.TTL(:);
+0025 NEV.Eventstring = NEV.Eventstring(:);
+0026 
+0027 <span class="comment">%% check for user submitted events</span>
+0028 <span class="comment">% - events at port 'RecID: 4098 Port: 0 TTL Value:'</span>
+0029 <span class="keyword">if</span> ~isempty(NEV.Eventstring)
+0030     nEv = length(NEV.TimeStamps);
+0031     DigEvIdx = regexp(NEV.Eventstring,<span class="string">'RecID:*'</span>);
+0032     DigEvIdx = ~cellfun(<span class="string">'isempty'</span>,DigEvIdx);
+0033     UserEvIdx = ~DigEvIdx;
+0034     UserEv =  [NEV.Eventstring(UserEvIdx) num2cell(NEV.TimeStamps(UserEvIdx))];
+0035     NEV.Eventstring = NEV.Eventstring(~UserEvIdx);
+0036     NEV.TimeStamps = NEV.TimeStamps(~UserEvIdx);
+0037     NEV.TTL = NEV.TTL(~UserEvIdx);
+0038 <span class="keyword">else</span>
+0039     UserEv = [];
+0040 <span class="keyword">end</span>
+0041 
+0042 <span class="comment">%% select non-zero events</span>
+0043 IX = find(NEV.TTL&gt;0);
+0044 nIX = length(IX);
+0045 
+0046 <span class="comment">%% get sequence length of marker events</span>
+0047 nTrStart = length(TrialWinEv{1});
+0048 nTrStop = length(TrialWinEv{2});
+0049 nCndStart = length(CndEvSeq{1});
+0050 nCndStop = length(CndEvSeq{2});
+0051 nParamStart = length(ParamEvSeq{1});
+0052 nParamStop = length(ParamEvSeq{2});
+0053 
+0054 <span class="comment">%% loop through all the events</span>
+0055 TrialNr = zeros(nIX,1);
+0056 ParamNr = zeros(nIX,1);
+0057 isCndFlag = false;
+0058 isParamFlag = false;
+0059 TrCnt = 0;
+0060 i = 1;
+0061 <span class="keyword">while</span> i&lt;=nIX
+0062     
+0063     <span class="comment">% detect the trial start sequence</span>
+0064     <span class="keyword">if</span> ~isParamFlag &amp;&amp; ~isCndFlag <span class="keyword">...</span><span class="comment"> % make sure you don't detect a trialstart code within a parameter sequence</span>
+0065             &amp;&amp; all(NEV.TTL(IX(i:i+nTrStart-1))==TrialWinEv{1}(:))<span class="comment">% detect correct trialstart sequence</span>
+0066         
+0067         TrCnt = TrCnt+1;
+0068         Events{TrCnt} = [];
+0069         ConditionData{TrCnt} = [];
+0070         ParamData{TrCnt} = [];
+0071         
+0072         TrialStart_i = i;
+0073         TrialStop_i = NaN;
+0074         CndStart_i = NaN;
+0075         CndStop_i = NaN;
+0076         ParStart_i = NaN;
+0077         ParStop_i = NaN;
+0078         
+0079         <span class="comment">% go through all events from here until ... break</span>
+0080         <span class="keyword">while</span> i&lt;=nIX
+0081             i = i+1;
+0082             
+0083             <span class="comment">% detect the TRIAL STOP sequence</span>
+0084             <span class="keyword">if</span> i&gt;nIX
+0085                 TrialStop_i = NaN;
+0086                 <span class="keyword">break</span>;
+0087             <span class="keyword">else</span>
+0088                 <span class="keyword">if</span> ~isParamFlag &amp;&amp; ~isCndFlag &amp;&amp; all(NEV.TTL(IX(i:i+nTrStop-1))==TrialWinEv{2})
+0089                     TrialStop_i = i;
+0090                     <span class="keyword">break</span>;
+0091                 <span class="keyword">end</span>
+0092             <span class="keyword">end</span>
+0093             
+0094             <span class="comment">% check for CONDITION START sequence</span>
+0095             <span class="keyword">if</span> ~isCndFlag &amp;&amp; ~isParamFlag &amp;&amp; i&lt;=nIX-(nCndStart-1) &amp;&amp; all(NEV.TTL(IX(i:i+nCndStart-1))==CndEvSeq{1});
+0096                 isCndFlag = 1;
+0097                 CndStart_i = i+nCndStart;
+0098             <span class="keyword">end</span>
+0099             
+0100             <span class="comment">% check for CONDITION STOP sequence</span>
+0101             <span class="keyword">if</span> isCndFlag &amp;&amp; ~isParamFlag &amp;&amp; i&lt;=nIX-(nCndStop-1) &amp;&amp; all(NEV.TTL(IX(i:i+nCndStop-1))==CndEvSeq{2});
+0102                 isCndFlag = 0;
+0103                 CndStop_i = i-1;
+0104             <span class="keyword">end</span>
+0105             
+0106             <span class="comment">% check for PARAMETER START sequence</span>
+0107             <span class="keyword">if</span> ~isCndFlag &amp;&amp; ~isParamFlag &amp;&amp; nParamStart&gt;0 &amp;&amp; i&lt;=nIX-(nParamStart-1) &amp;&amp; all(NEV.TTL(IX(i:i+nParamStart-1))==ParamEvSeq{1});
+0108                 isParamFlag = 1;
+0109                 ParStart_i = i+nParamStart;
+0110             <span class="keyword">end</span>
+0111             
+0112             <span class="comment">% check for PARAMETER STOP sequence</span>
+0113             <span class="keyword">if</span> ~isCndFlag &amp;&amp; isParamFlag &amp;&amp; nParamStop&gt;0 &amp;&amp; i&lt;=nIX-(nParamStop-1) &amp;&amp; all(NEV.TTL(IX(i:i+nParamStop-1))==ParamEvSeq{2});
+0114                 isParamFlag = 0;
+0115                 ParStop_i = i-1;
+0116             <span class="keyword">end</span>
+0117             
+0118         <span class="keyword">end</span>
+0119         
+0120         <span class="keyword">if</span> isnan(TrialStop_i)
+0121             Events(TrCnt) = [];
+0122             ConditionData(TrCnt) = [];
+0123             ParamData(TrCnt) = [];
+0124         <span class="keyword">else</span>
+0125             <span class="comment">% compile the current event</span>
+0126             AllEv{TrCnt} = [NEV.TimeStamps(IX(TrialStart_i:TrialStop_i)) NEV.TTL(IX(TrialStart_i:TrialStop_i))];
+0127             Ev_i = TrialStart_i:TrialStop_i;
+0128             <span class="keyword">if</span> ~any(isnan([CndStart_i CndStop_i]))
+0129                 ConditionData{TrCnt} = [NEV.TimeStamps(IX(CndStart_i:CndStop_i)) NEV.TTL(IX(CndStart_i:CndStop_i))];
+0130                 Ev_i = setdiff(Ev_i,[CndStart_i:CndStop_i]);
+0131             <span class="keyword">else</span>
+0132                 ConditionData{TrCnt} = [];
+0133             <span class="keyword">end</span>
+0134             <span class="keyword">if</span> ~any(isnan([ParStart_i ParStop_i]))
+0135                 ParamData{TrCnt} = [NEV.TimeStamps(IX(ParStart_i:ParStop_i)) NEV.TTL(IX(ParStart_i:ParStop_i))];
+0136                 Ev_i = setdiff(Ev_i,[ParStart_i:ParStop_i]);
+0137             <span class="keyword">else</span>
+0138                 ParamData{TrCnt} = [];
+0139             <span class="keyword">end</span>
+0140             Events{TrCnt} = [NEV.TimeStamps(IX(Ev_i)) NEV.TTL(IX(Ev_i))];
+0141         <span class="keyword">end</span>
+0142         
+0143     <span class="keyword">end</span>
+0144     
+0145     i = i+1;
+0146 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 25-Mar-2010 13:02:14 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>

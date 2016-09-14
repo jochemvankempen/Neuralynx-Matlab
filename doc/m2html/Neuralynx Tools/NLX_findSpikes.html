@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NLX_findSpikes</title>
+  <meta name="keywords" content="NLX_findSpikes">
+  <meta name="description" content="Finds spikes with given properties.">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2003 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+</head>
+<body>
+<a name="_top"></a>
+<div><a href="../index.html">Home</a> &gt;  <a href="index.html">Neuralynx Tools</a> &gt; NLX_findSpikes.m</div>
+
+<!--<table width="100%"><tr><td align="left"><a href="../index.html"><img alt="<" border="0" src="../left.png">&nbsp;Master index</a></td>
+<td align="right"><a href="index.html">Index for Neuralynx Tools&nbsp;<img alt=">" border="0" src="../right.png"></a></td></tr></table>-->
+
+<h1>NLX_findSpikes
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>Finds spikes with given properties.</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [Index,NSE] = NLX_findSpikes(NSE,varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> Finds spikes with given properties.
+
+ INPUT
+ NSE ............. structure containing NSE data, loads file if empty
+ Property/Value pairs
+ 'WAVEFORM' ......  [n X 3] matrix, [sample nr , lower boundary , upper boundery]
+                    Boundaries are values between -2047 2047(-32768 32768)
+                    Max. in SpiikeSort Template Window (ncf cluster file)
+ 'CLUSTER' ........ [n]
+ 'TIME' ........... [lower upper] window, multiple windows in rows</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NLX_CheckNSE.html" class="code" title="function [NumSpikes,FieldArray,FieldCells] = NLX_CheckNSE(NSE)">NLX_CheckNSE</a>	Checks an NSE structure for number of spikes and existing data.</li><li><a href="NLX_LoadNSE.html" class="code" title="function NSE = NLX_LoadNSE(NSEpath,FieldOption,ExtractMode,ExtractArray)">NLX_LoadNSE</a>	Loads a *.nse file into a matlab structure.</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NLX_AdjustThreshold.html" class="code" title="function NSE = NLX_AdjustThreshold(NSE,NewThresholdValue,WaveFormAlign,SaveFlag)">NLX_AdjustThreshold</a>	Adjust the recording threshold.</li><li><a href="NLX_ExtractCluster.html" class="code" title="function NSE = NLX_ExtractCluster(NSE,ClusterNr)">NLX_ExtractCluster</a>	Extracts a cluster (e.g. previously selected by SpikeSort) from a *.NSE file</li><li><a href="NLX_RemoveCluster.html" class="code" title="function NSE = NLX_RemoveCluster(NSE,ClusterNr)">NLX_RemoveCluster</a>	Removes a cluster (e.g. previously selected by SpikeSort) from a *.NSE file</li><li><a href="NLX_WaveformHist.html" class="code" title="function NSE = NLX_WaveformHist(NSE,ClusterNr,SampleNr)">NLX_WaveformHist</a>	Plots histogram of waveform values at given sample nr.</li></ul>
+<!-- crossreference -->
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [Index,NSE] = NLX_findSpikes(NSE,varargin)</a>
+0002 
+0003 <span class="comment">% Finds spikes with given properties.</span>
+0004 <span class="comment">%</span>
+0005 <span class="comment">% INPUT</span>
+0006 <span class="comment">% NSE ............. structure containing NSE data, loads file if empty</span>
+0007 <span class="comment">% Property/Value pairs</span>
+0008 <span class="comment">% 'WAVEFORM' ......  [n X 3] matrix, [sample nr , lower boundary , upper boundery]</span>
+0009 <span class="comment">%                    Boundaries are values between -2047 2047(-32768 32768)</span>
+0010 <span class="comment">%                    Max. in SpiikeSort Template Window (ncf cluster file)</span>
+0011 <span class="comment">% 'CLUSTER' ........ [n]</span>
+0012 <span class="comment">% 'TIME' ........... [lower upper] window, multiple windows in rows</span>
+0013 
+0014 <span class="keyword">if</span> isempty(NSE)
+0015     NSE = <a href="NLX_LoadNSE.html" class="code" title="function NSE = NLX_LoadNSE(NSEpath,FieldOption,ExtractMode,ExtractArray)">NLX_LoadNSE</a>([],<span class="string">'FULL'</span>,1,[],1);
+0016     <span class="keyword">if</span> isempty(NSE.Path);<span class="keyword">return</span>;<span class="keyword">end</span>
+0017 <span class="keyword">end</span>
+0018 [NumSpikes,FieldArray] = <a href="NLX_CheckNSE.html" class="code" title="function [NumSpikes,FieldArray,FieldCells] = NLX_CheckNSE(NSE)">NLX_CheckNSE</a>(NSE);
+0019 Index = logical(zeros(1,NumSpikes));
+0020 
+0021 <span class="keyword">for</span> i = 1:2:length(varargin)
+0022     <span class="keyword">switch</span> upper(varargin{i})
+0023         <span class="keyword">case</span> <span class="string">'WAVEFORM'</span>
+0024             <span class="keyword">for</span> j = 1:size(varargin{i+1},1)
+0025                 Index(NSE.SpikeWaveForm(varargin{i+1}(j,1),:,:)&gt;=varargin{i+1}(j,2) &amp; NSE.SpikeWaveForm(varargin{i+1}(j,1),:,:)&lt;=varargin{i+1}(j,3)) = 1;
+0026             <span class="keyword">end</span>
+0027         <span class="keyword">case</span> <span class="string">'CLUSTER'</span>
+0028             <span class="keyword">for</span> j = 1:length(varargin{i+1})
+0029                 Index(NSE.ClusterNr(1,:)==varargin{i+1}(j)) = 1;
+0030             <span class="keyword">end</span>
+0031         <span class="keyword">case</span> <span class="string">'TIME'</span>
+0032             <span class="keyword">for</span> j = 1:size(varargin{i+1},1)
+0033                 Index(NSE.TimeStamps(1,:)&gt;=varargin{i+1}(j,1) &amp; NSE.TimeStamps(1,:)&lt;=varargin{i+1}(j,2)) = 1;
+0034             <span class="keyword">end</span>
+0035         <span class="keyword">otherwise</span>
+0036             error(<span class="string">'Don''t know what to look for!'</span>);
+0037     <span class="keyword">end</span>
+0038 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Thu 25-Mar-2010 13:02:14 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/">m2html</a></strong> &copy; 2003</address>
+</body>
+</html>
