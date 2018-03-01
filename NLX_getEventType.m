@@ -9,7 +9,9 @@ function NEV = NLX_getEventType(NEV,EventType,PrintFlag)
 DigEvIdx1 = regexp(NEV.Eventstring,'RecID:*');
 DigEvIdx2 = regexp(NEV.Eventstring,'Raw Data File Input Port TTL*');
 DigEvIdx3 = regexp(NEV.Eventstring,'Digital Lynx Parallel Input Port TTL*');
-DigEvIdx = ~cellfun('isempty',DigEvIdx1) | ~cellfun('isempty',DigEvIdx2) | ~cellfun('isempty',DigEvIdx3);
+DigEvIdx4 = regexp(NEV.Eventstring,'TTL Input on*');
+
+DigEvIdx = ~cellfun('isempty',DigEvIdx1) | ~cellfun('isempty',DigEvIdx2) | ~cellfun('isempty',DigEvIdx3) | ~cellfun('isempty',DigEvIdx4);
 UserEvIdx = ~DigEvIdx;
 
 %% decide which ones to clear

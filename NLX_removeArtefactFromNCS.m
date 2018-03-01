@@ -84,9 +84,17 @@ sampPrd = 1000000.0/NCSHeader.SamplingFrequency;
 % analyse artefact
 [mxVal,mxInd] = max(artTemp);
 [mnVal,mnInd] = min(artTemp);
-artLat   = artT(min([mnInd mxInd]));
-% dArtTemp = diff(artTemp);
-fprintf('artefact latency: %1.3f microsec\n', artLat);
+
+maxThresh = mean(artTemp)+5*std(artTemp);
+minThresh = mean(artTemp)-5*std(artTemp);
+if mxVal>maxThresh || mnVal<minThresh
+    artLat   = artT(min([mnInd mxInd]));
+    % dArtTemp = diff(artTemp);
+    fprintf('artefact latency: %1.3f microsec\n', artLat);
+else
+    fprintf('artefact is not exceeding threshold criterion!\n');
+    return;
+end
 
 % restrict artefact refresh interval to a waveform
 artWaveTimeOffset = artLat-1000;
@@ -96,7 +104,7 @@ artWaveBinNum     = round(artWaveTimeLength/sampPrd);
 artWaveIndexOffset = artWaveBinOffset : artWaveBinOffset+artWaveBinNum-1;
 
 for iBin = 1:artWaveBinNum
-    NCS.Samples(StartSampleNr+artWaveIndexOffset(iBin)-1) = NCS.Samples(StartSampleNr+artWaveIndexOffset(iBin)-1) - artTemp(artWaveIndexOffset(iBin));
+        NCS.Samples(StartSampleNr+artWaveIndexOffset(iBin)-1) = NCS.Samples(StartSampleNr+artWaveIndexOffset(iBin)-1) - artTemp(artWaveIndexOffset(iBin));
 end
 
 
