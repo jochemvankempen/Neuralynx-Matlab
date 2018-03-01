@@ -62,7 +62,9 @@ NCS.Samples = NCS.Samples(:,index);
 
 function [Times,Samples] = vectorise(NCS,NLXTime)
 [SampleRows,SampleCols] = size(NCS.Samples);
-NCS.TimeStamps = repmat(NCS.TimeStamps,[SampleRows 1]) + repmat([0:SampleRows-1]',[1 SampleCols]) .* repmat(round(1000000./NCS.SF),[SampleRows 1]);
+% NCS.TimeStamps = repmat(NCS.TimeStamps,[SampleRows 1]) + repmat([0:SampleRows-1]',[1 SampleCols]) .* repmat(round(1000000./NCS.SF),[SampleRows 1]);
+NCS.TimeStamps = repmat(NCS.TimeStamps,[SampleRows 1]) + repmat([0:SampleRows-1]',[1 SampleCols]) .* repmat(1000000./NCS.SF,[SampleRows 1]);
+NCS.TimeStamps = round(NCS.TimeStamps);
 index = find(NCS.TimeStamps>=NLXTime(1) & NCS.TimeStamps<=NLXTime(2));
 Samples = NCS.Samples(index);
 Times = NCS.TimeStamps(index);

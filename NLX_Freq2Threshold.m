@@ -1,6 +1,7 @@
 function [NSE,i] = NLX_Freq2Threshold(NSE,ClusterNr,FreqBounds,TimeWin,ReposClustNr,LogFileID)
 
 % Adjust a spike threshold to a set frequency in a defined window.
+% Rejected spikes are indicated by ReposClustNr, accepted spikes by ClusterNr
 %
 % NSE = NLX_Freq2Threshold(NSE,ClusterNr,FreqBounds,TimeWin)
 %
@@ -91,6 +92,7 @@ while cSpikeRate > FreqBounds(2) || cSpikeRate < FreqBounds(1)
     
     fprintf(LogFileID,'%1.0f %1.2f Hz %1.0f to %1.0f Step:%1.1f\n',i,cSpikeRate,WaveMin,WaveMax,Step);
 end
+
 
 %% delete repository
 if ReposDeleteFlag
