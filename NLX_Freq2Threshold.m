@@ -86,11 +86,22 @@ while cSpikeRate > FreqBounds(2) || cSpikeRate < FreqBounds(1)
     if (cSpikeRate > FreqBounds(2) && lastStepDir == -1) || (cSpikeRate < FreqBounds(1) && lastStepDir == 1)
         iDecr = iDecr+1;
         Step = Step .* (log(2)./log(iDecr+1));
+        StepHistory(iDecr) = Step;
     end
     lastStepDir = currStepDir;
     currStepDir = NaN;
     
     fprintf(LogFileID,'%1.0f %1.2f Hz %1.0f to %1.0f Step:%1.1f\n',i,cSpikeRate,WaveMin,WaveMax,Step);
+    
+    if Step < 1
+        % implemented an extra cycle with different step sizes, to prevent
+        % non-convergence to a spike threshold and getting stuck in the
+        % while loop with stepsize 0. Jochem van Kempen 01/03/2018
+        Step = mean(StepHistory(2:3));
+        i = 1;
+        iDecr = 1;
+    end
+
 end
 
 
