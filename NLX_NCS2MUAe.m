@@ -2,7 +2,8 @@ function [MUAe] = NLX_NCS2MUAe(NCS, settings)
 %
 % Computes MUAe from NCS data, with optional downsampling.
 % MUAe data is saved in the original NCS data structure. Downsampling is
-% applied over 
+% applied within a column, this way we can keep using the original
+% timestamps.
 %
 % Note: it computes MUAe in segments, so this script is most useful for
 % entire datasets, not e.g. single trials. Data is filtered in segments,

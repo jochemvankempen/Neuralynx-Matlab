@@ -1,4 +1,4 @@
-function NSE = NLX_detectSpikes2(NCS,NLXTime,Threshold,nWaveform,StampMode,WaveformAlign,MinISI,NSEPath, appendToFile)
+function NSE = NLX_detectSpikes_varThreshold(NCS,NLXTime,Threshold,nWaveform,StampMode,WaveformAlign,MinISI,NSEPath, NSE_targetfilesize, appendToFile)
 
 % detect spikes from continous sampled data (*.nrd,*.ncs)
 % [TS,WF] = NLX_detectSpikes2(NCS,NLXTime,Threshold,nWaveform,StampMode,WaveformAlign,MinISI,NSEPath, appendToFile)
@@ -103,87 +103,150 @@ NSE.SpikeFeatures = [];
 NSE.SpikeWaveForm = [];
 
 %% detect threshold in chunks
-nRecWin = size(tsRecWinIndex,1);
-fileReadyToAppend = false;
-for iRecWin = 1:nRecWin
-    nRecWinCols = diff(tsRecWinIndex(iRecWin,:)) + 1;
-    chunkSize = 5000;
-    chunkNum  = ceil(nRecWinCols/chunkSize);
-    for iChk = 1:chunkNum
-        chkTSIndex    = [1 chunkSize] + (iChk-1)*chunkSize;
-        chkTSIndex(2) = min([chkTSIndex(2) nRecWinCols]);
+
+NSE_filesize = 0;
+iloop = 0;
+iDecr = 1;
+Step = 0;
+currStepDir = NaN;
+
+WaveMax = 100000;
+WaveMin = 1;
+fprintf('%1.0f %1.2f MB, waveformsize:  %1.0f to %1.0f\n',iloop, NSE_filesize, WaveMin, WaveMax);
+while (NSE_filesize < NSE_targetfilesize(1) || NSE_filesize > NSE_targetfilesize(2))
+    
+    
+    % change threshold
+    if NSE_filesize > NSE_targetfilesize(2)
+        currStepDir = +1;
+        iloop = iloop+1;
+        Threshold = WaveMin+Step;
+    elseif (iDecr>1 || Step>0) && (NSE_filesize < NSE_targetfilesize(1))
+        currStepDir = -1;
+        iloop = iloop+1;
+        Threshold = WaveMin-Step;
         
-        % get the actual sample index
-        sampleIndex = [sub2ind([nRows,nCols],1,chkTSIndex(1)+tsRecWinIndex(iRecWin,1)-1) sub2ind([nRows,nCols],nRows,chkTSIndex(2)+tsRecWinIndex(iRecWin,1)-1)];
-        
-        % get threshold crossing
-        if isWinDiscrim
-            % window discriminator
-            isSpike = NCS.Samples(sampleIndex(1):sampleIndex(2)) >=Threshold(1) & NCS.Samples(sampleIndex(1):sampleIndex(2))<=Threshold(2);
-        else
-            isSpike = NCS.Samples(sampleIndex(1):sampleIndex(2)) > Threshold; % & cTimeBins>=detectionOffset(1);
+        while Threshold<0
+            Step = Step/2;
+            Threshold = WaveMin-Step;
         end
-        % detect peaks (maxima)
-        isSpike(:,2:end-1) = isSpike(:,2:end-1) & ...
-            diff(NCS.Samples(sampleIndex(1):sampleIndex(2)-1),1,2)>0 & ...
-            diff(NCS.Samples(sampleIndex(1)+1:sampleIndex(2)),1,2)<0;
-        isSpike([1 end])   = false; % first of this chunk is not considered a peak
-        
-        % retrigger (impose refractory period)
-        isSpike       = find(isSpike);% convert from logical to double
-        spikeToDelete = find(diff(isSpike)<RetriggerSampleNum,1,'first');
-        spikeDelCount = 0;
-        while ~isempty(spikeToDelete)
-            spikeDelCount = spikeDelCount+1;
-            isSpike(spikeToDelete) = [];
-            spikeToDelete = find(diff(isSpike)<RetriggerSampleNum,1,'first');
-        end
-        
-        % convert to real NCS.Samples-Index
-        isSpike = sampleIndex(1) + isSpike -1;
-        isSpike(isSpike - (WaveformAlign-1) < 1)                           = [];
-        isSpike(isSpike - (WaveformAlign-1) + (nWaveform-1) > nRows*nCols) = [];
-        nSpikes = length(isSpike);
-        
-        % extract waveforms
-        WaveformIndex    = repmat(isSpike(:) - (WaveformAlign-1),[1 nWaveform]) + repmat([0:nWaveform-1],[nSpikes 1]);
-        WaveForms        = NCS.Samples(WaveformIndex);
-        [sampleNr, tsNr] = ind2sub([nRows,nCols],isSpike);
-        timeStamps       = round(NCS.TimeStamps(tsNr) + (sampleNr-1) .* (1000000./NCS.SF(tsNr))) ;
-        
-        % append to existing file
-        if appendToFile
-            if isempty(timeStamps)
-                fprintf('write %u spikes recWin#%u(%u) chk#%u(%u) 1st:%u last:%u tsRange(%u-%u)\n',nSpikes,iRecWin,nRecWin,iChk,chunkNum,-1,-1,NCSTimeRange(1), NCSTimeRange(2));
+    elseif NSE_filesize ~=0
+        break;
+    end
+
+    %%% update header
+    nseHeadCells{strcmp(nseHeadCells(:,1),'ThreshVal'),2} = Threshold / 0.000001 * ncsHeadCells{strcmp(ncsHeadCells(:,1),'ADBitVolts'),2};
+    
+    nRecWin = size(tsRecWinIndex,1);
+    fileReadyToAppend = false;
+    for iRecWin = 1:nRecWin
+        nRecWinCols = diff(tsRecWinIndex(iRecWin,:)) + 1;
+        chunkSize = 5000;
+        chunkNum  = ceil(nRecWinCols/chunkSize);
+        for iChk = 1:chunkNum
+            chkTSIndex    = [1 chunkSize] + (iChk-1)*chunkSize;
+            chkTSIndex(2) = min([chkTSIndex(2) nRecWinCols]);
+            
+            % get the actual sample index
+            sampleIndex = [sub2ind([nRows,nCols],1,chkTSIndex(1)+tsRecWinIndex(iRecWin,1)-1) sub2ind([nRows,nCols],nRows,chkTSIndex(2)+tsRecWinIndex(iRecWin,1)-1)];
+            
+            % get threshold crossing
+            if isWinDiscrim
+                % window discriminator
+                isSpike = NCS.Samples(sampleIndex(1):sampleIndex(2)) >=Threshold(1) & NCS.Samples(sampleIndex(1):sampleIndex(2))<=Threshold(2);
             else
-                fprintf('write %u spikes recWin#%u(%u) chk#%u(%u) 1st:%u last:%u tsRange(%u-%u)\n',nSpikes,iRecWin,nRecWin,iChk,chunkNum,timeStamps(1),timeStamps(end),NCSTimeRange(1), NCSTimeRange(2));
+                isSpike = NCS.Samples(sampleIndex(1):sampleIndex(2)) > Threshold; % & cTimeBins>=detectionOffset(1);
             end
-            NSE.ScNr          = ones(nSpikes,1).*unique(NCS.ChNr);
-            NSE.ClusterNr     = zeros(nSpikes,1);
-            NSE.SpikeFeatures = zeros(8,nSpikes);
-            NSE.SpikeWaveForm = permute(WaveForms,[2 3 1]);
-            NSE.TimeStamps    = timeStamps(:);
-            if nSpikes>0
-                if ~fileReadyToAppend
-                    NSE = NLX_SaveNSE(NSE,false,true);
-                    fileReadyToAppend = true;
+            % detect peaks (maxima)
+            isSpike(:,2:end-1) = isSpike(:,2:end-1) & ...
+                diff(NCS.Samples(sampleIndex(1):sampleIndex(2)-1),1,2)>0 & ...
+                diff(NCS.Samples(sampleIndex(1)+1:sampleIndex(2)),1,2)<0;
+            isSpike([1 end])   = false; % first of this chunk is not considered a peak
+            
+            % retrigger (impose refractory period)
+            isSpike       = find(isSpike);% convert from logical to double
+            spikeToDelete = find(diff(isSpike)<RetriggerSampleNum,1,'first');
+            spikeDelCount = 0;
+            while ~isempty(spikeToDelete)
+                spikeDelCount = spikeDelCount+1;
+                isSpike(spikeToDelete) = [];
+                spikeToDelete = find(diff(isSpike)<RetriggerSampleNum,1,'first');
+            end
+            
+            % convert to real NCS.Samples-Index
+            isSpike = sampleIndex(1) + isSpike -1;
+            isSpike(isSpike - (WaveformAlign-1) < 1)                           = [];
+            isSpike(isSpike - (WaveformAlign-1) + (nWaveform-1) > nRows*nCols) = [];
+            nSpikes = length(isSpike);
+            
+            % extract waveforms
+            WaveformIndex    = repmat(isSpike(:) - (WaveformAlign-1),[1 nWaveform]) + repmat([0:nWaveform-1],[nSpikes 1]);
+            WaveForms        = NCS.Samples(WaveformIndex);
+            [sampleNr, tsNr] = ind2sub([nRows,nCols],isSpike);
+            timeStamps       = round(NCS.TimeStamps(tsNr) + (sampleNr-1) .* (1000000./NCS.SF(tsNr))) ;
+            
+            % append to existing file
+            if appendToFile
+                if isempty(timeStamps)
+                    fprintf('write %u spikes recWin#%u(%u) chk#%u(%u) 1st:%u last:%u tsRange(%u-%u)\n',nSpikes,iRecWin,nRecWin,iChk,chunkNum,-1,-1,NCSTimeRange(1), NCSTimeRange(2));
                 else
-                    NSE = NLX_SaveNSE(NSE,true,false);
+                    fprintf('write %u spikes recWin#%u(%u) chk#%u(%u) 1st:%u last:%u tsRange(%u-%u)\n',nSpikes,iRecWin,nRecWin,iChk,chunkNum,timeStamps(1),timeStamps(end),NCSTimeRange(1), NCSTimeRange(2));
                 end
+                NSE.ScNr          = ones(nSpikes,1).*unique(NCS.ChNr);
+                NSE.ClusterNr     = zeros(nSpikes,1);
+                NSE.SpikeFeatures = zeros(8,nSpikes);
+                NSE.SpikeWaveForm = permute(WaveForms,[2 3 1]);
+                NSE.TimeStamps    = timeStamps(:);
+                if nSpikes>0
+                    if ~fileReadyToAppend
+                        NSE = NLX_SaveNSE(NSE,false,true);
+                        fileReadyToAppend = true;
+                    else
+                        NSE = NLX_SaveNSE(NSE,true,false);
+                    end
+                end
+            else
+                %fprintf('append %u spikes chk#%u(%u)\n',nSpikes,iChk,chunkNum);
+                NSE.ScNr          = cat(1,NSE.ScNr,ones(nSpikes,1).*unique(NCS.ChNr));
+                NSE.ClusterNr     = cat(1,NSE.ClusterNr,zeros(nSpikes,1));
+                NSE.SpikeFeatures = cat(2,NSE.SpikeFeatures,zeros(8,nSpikes));
+                NSE.SpikeWaveForm = cat(3,NSE.SpikeWaveForm,permute(WaveForms,[2 3 1]));
+                NSE.TimeStamps    = cat(1,NSE.TimeStamps,timeStamps(:));
             end
-        else
-            %fprintf('append %u spikes chk#%u(%u)\n',nSpikes,iChk,chunkNum);
-            NSE.ScNr          = cat(1,NSE.ScNr,ones(nSpikes,1).*unique(NCS.ChNr));
-            NSE.ClusterNr     = cat(1,NSE.ClusterNr,zeros(nSpikes,1));
-            NSE.SpikeFeatures = cat(2,NSE.SpikeFeatures,zeros(8,nSpikes));
-            NSE.SpikeWaveForm = cat(3,NSE.SpikeWaveForm,permute(WaveForms,[2 3 1]));
-            NSE.TimeStamps    = cat(1,NSE.TimeStamps,timeStamps(:));
         end
     end
-end
+    
+    if ~appendToFile && ~isempty(NSEPath)
+        NSE = NLX_SaveNSE(NSE,false,true);
+    end
+    
+    %     [PATHSTR,NAME,EXT] = fileparts(NSE.Path);
+    NSE_file = dir(NSE.Path);
+    NSE_filesize = NSE_file.bytes/1e6;
+    
+    WaveAlign = NLX_getWaveAlign(NSE);
+    iCluster = NLX_findSpikes(NSE,'CLUSTER',0);
+    WaveMax = NLX_WaveformMax(NSE,iCluster,WaveAlign);
+    WaveMin = NLX_WaveformMin(NSE,iCluster,WaveAlign);
+    
+    fprintf('%1.0f %1.2f MB, waveformsize: %1.0f to %1.0f\n',iloop, NSE_filesize, WaveMin, WaveMax);
 
-if ~appendToFile && ~isempty(NSEPath)
-    NSE = NLX_SaveNSE(NSE,false,true);
+    if iloop == 0
+        Step = 0.5*abs(diff([WaveMax WaveMin]));
+    else
+        iDecr = iDecr+1;
+        Step = Step .* (log(2)./log(iDecr+1));
+    end
+    StepHistory(iDecr) = Step;
+
+    if Step < 1
+        % implemented an extra cycle with different step sizes, to prevent
+        % non-convergence to a spike threshold and getting stuck in the
+        % while loop with stepsize 0. Jochem van Kempen 01/03/2018
+        Step = mean(StepHistory(2:3));
+        i = 1;
+        iDecr = 1;
+    end
 end
 
 % ######## Neuralynx Data File Header
