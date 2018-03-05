@@ -107,7 +107,7 @@ NSE.SpikeWaveForm = [];
 NSE_filesize = 0;
 iloop = 0;
 iDecr = 1;
-Step = 0;
+Step = [];
 currStepDir = NaN;
 
 WaveMax = 100000;
@@ -121,7 +121,7 @@ while (NSE_filesize < NSE_targetfilesize(1) || NSE_filesize > NSE_targetfilesize
         currStepDir = +1;
         iloop = iloop+1;
         Threshold = WaveMin+Step;
-    elseif (iDecr>1 || Step>0) && (NSE_filesize < NSE_targetfilesize(1))
+    elseif ~isempty(Step) && (NSE_filesize < NSE_targetfilesize(1))
         currStepDir = -1;
         iloop = iloop+1;
         Threshold = WaveMin-Step;
@@ -131,7 +131,8 @@ while (NSE_filesize < NSE_targetfilesize(1) || NSE_filesize > NSE_targetfilesize
             Threshold = WaveMin-Step;
         end
     elseif NSE_filesize ~=0
-        break;
+        keyboard
+%         break;
     end
 
     %%% update header
@@ -229,22 +230,26 @@ while (NSE_filesize < NSE_targetfilesize(1) || NSE_filesize > NSE_targetfilesize
     WaveMax = NLX_WaveformMax(NSE,iCluster,WaveAlign);
     WaveMin = NLX_WaveformMin(NSE,iCluster,WaveAlign);
     
-    fprintf('%1.0f %1.2f MB, waveformsize: %1.0f to %1.0f\n',iloop, NSE_filesize, WaveMin, WaveMax);
-
+    fprintf('%1.0f %1.2f MB, waveformsize: %1.0f to %1.0f, stepsize %1.0f\n',iloop, NSE_filesize, WaveMin, WaveMax, Step);
+   
     if iloop == 0
-        Step = 0.5*abs(diff([WaveMax WaveMin]));
+        Step = 0.5*abs(diff([WaveMax WaveMin]) * (1 - NSE_filesize / mean(NSE_targetfilesize)));
     else
         iDecr = iDecr+1;
         Step = Step .* (log(2)./log(iDecr+1));
     end
-    StepHistory(iDecr) = Step;
+    if ~isempty(Step)
+        StepHistory(iDecr) = Step;
+    else
+        Threshold = Threshold * 0.75;
+    end
 
-    if Step < 1
+    if Step < 100
         % implemented an extra cycle with different step sizes, to prevent
         % non-convergence to a spike threshold and getting stuck in the
         % while loop with stepsize 0. Jochem van Kempen 01/03/2018
         Step = mean(StepHistory(2:3));
-        i = 1;
+        iloop = 1;
         iDecr = 1;
     end
 end
