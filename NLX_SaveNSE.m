@@ -63,3 +63,4 @@ ExtractionModeArray = 1;
 [NumSpikes,FieldArray,FieldCells] = NLX_CheckNSE(NSE);
 
 Mat2NlxSE(NSE.Path,AppendToFile,ExtractionMode,ExtractionModeArray,NumSpikes,[FieldArray 1],FieldCells{:}, NSE.Header);
+    

@@ -1,4 +1,4 @@
-function [NSE,i] = NLX_Freq2Threshold(NSE,ClusterNr,FreqBounds,TimeWin,ReposClustNr,LogFileID)
+function [NSE,i, NewThresholdValue] = NLX_Freq2Threshold(NSE,ClusterNr,FreqBounds,TimeWin,ReposClustNr,LogFileID)
 
 % Adjust a spike threshold to a set frequency in a defined window.
 % Rejected spikes are indicated by ReposClustNr, accepted spikes by ClusterNr
@@ -24,18 +24,20 @@ if nargin<4 || isempty(TimeWin)
 end
 
 %% get current parameter
-iCluster = NLX_findSpikes(NSE,'CLUSTER',ClusterNr);
-WaveMax = NLX_WaveformMax(NSE,iCluster,WaveAlign);
-WaveMin = NLX_WaveformMin(NSE,iCluster,WaveAlign);
-WaveRange = [WaveMin WaveMax];
+iCluster    = NLX_findSpikes(NSE,'CLUSTER',ClusterNr);
+WaveMax     = NLX_WaveformMax(NSE,iCluster,WaveAlign);
+WaveMin     = NLX_WaveformMin(NSE,iCluster,WaveAlign);
+WaveRange   = [WaveMin WaveMax];
 cSpikeCount = NLX_CountSpikes(NSE,TimeWin,ClusterNr);
 cSpikeCount = sum(cSpikeCount);
-dt = sum(diff(TimeWin,[],2),1);
-cSpikeRate = cSpikeCount/(dt*1e-6);
-Step = 0.5*abs(diff([WaveMax WaveMin]));
+dt          = sum(diff(TimeWin,[],2),1);
+cSpikeRate  = cSpikeCount/(dt*1e-6);
+Step        = 0.5*abs(diff([WaveMax WaveMin]));
 lastStepDir = NaN;
 currStepDir = NaN;
-iDecr = 1;    
+
+convergenceError = 0;
+iDecr = 1; iDecr2 = 1;    
 
 %% check threshold mode
 if abs(WaveMax)<abs(WaveMin)
@@ -47,6 +49,14 @@ end
 %% do "staircase"
 i = 0;
 fprintf(LogFileID,'%1.0f %1.2f Hz %1.0f to %1.0f\n',i,cSpikeRate,WaveMin,WaveMax);
+orig_waveMin = WaveMin;
+orig_waveMax = WaveMax;
+
+if cSpikeRate > FreqBounds(1) && cSpikeRate < FreqBounds(2)
+    NewThresholdValue = WaveMin;
+    i = 1;
+end
+
 while cSpikeRate > FreqBounds(2) || cSpikeRate < FreqBounds(1)
     
     % change threshold
@@ -85,21 +95,32 @@ while cSpikeRate > FreqBounds(2) || cSpikeRate < FreqBounds(1)
     % change stepsize
     if (cSpikeRate > FreqBounds(2) && lastStepDir == -1) || (cSpikeRate < FreqBounds(1) && lastStepDir == 1)
         iDecr = iDecr+1;
+        iDecr2 = iDecr2+1;
         Step = Step .* (log(2)./log(iDecr+1));
-        StepHistory(iDecr) = Step;
+        StepHistory(iDecr2) = Step;
     end
     lastStepDir = currStepDir;
     currStepDir = NaN;
     
-    fprintf(LogFileID,'%1.0f %1.2f Hz %1.0f to %1.0f Step:%1.1f\n',i,cSpikeRate,WaveMin,WaveMax,Step);
+    fprintf(LogFileID,'%1.0f %1.2f Hz %1.0f to %1.0f Threshold %1.0f Step:%1.1f\n',i,cSpikeRate,WaveMin,WaveMax,NewThresholdValue, Step);
     
     if Step < 1
         % implemented an extra cycle with different step sizes, to prevent
         % non-convergence to a spike threshold and getting stuck in the
         % while loop with stepsize 0. Jochem van Kempen 01/03/2018
         Step = mean(StepHistory(2:3));
-        i = 1;
+
         iDecr = 1;
+        convergenceError = convergenceError+1;
+        if convergenceError == 2
+            Step = StepHistory(2) * convergenceError;
+        elseif convergenceError == 3
+            WaveMin = orig_waveMin;
+            WaveMax = orig_waveMax;
+            Step = 500;
+        end
+
+            
     end
 
 end

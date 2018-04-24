@@ -107,31 +107,33 @@ NSE.SpikeWaveForm = [];
 NSE_filesize = 0;
 iloop = 0;
 iDecr = 1;
+iSwitch = 0;
 Step = [];
-currStepDir = NaN;
+nextStepDir = NaN;
 
 WaveMax = 100000;
 WaveMin = 1;
 fprintf('%1.0f %1.2f MB, waveformsize:  %1.0f to %1.0f\n',iloop, NSE_filesize, WaveMin, WaveMax);
 while (NSE_filesize < NSE_targetfilesize(1) || NSE_filesize > NSE_targetfilesize(2))
-    
-    
+        
     % change threshold
     if NSE_filesize > NSE_targetfilesize(2)
         currStepDir = +1;
         iloop = iloop+1;
-        Threshold = WaveMin+Step;
+        Threshold = Threshold+Step;
+%         Threshold = Threshold+Step;
     elseif ~isempty(Step) && (NSE_filesize < NSE_targetfilesize(1))
         currStepDir = -1;
         iloop = iloop+1;
-        Threshold = WaveMin-Step;
+        Threshold = Threshold-Step;
+%         Threshold = Threshold-Step;
         
         while Threshold<0
             Step = Step/2;
             Threshold = WaveMin-Step;
         end
     elseif NSE_filesize ~=0
-        keyboard
+%         keyboard
 %         break;
     end
 
@@ -223,34 +225,67 @@ while (NSE_filesize < NSE_targetfilesize(1) || NSE_filesize > NSE_targetfilesize
     
     %     [PATHSTR,NAME,EXT] = fileparts(NSE.Path);
     NSE_file = dir(NSE.Path);
-    NSE_filesize = NSE_file.bytes/1e6;
+    if isempty(NSE_file)
+        NSE_filesize = 0.01;
+    else
+        NSE_filesize = NSE_file.bytes/1e6;
+    end
     
     WaveAlign = NLX_getWaveAlign(NSE);
     iCluster = NLX_findSpikes(NSE,'CLUSTER',0);
     WaveMax = NLX_WaveformMax(NSE,iCluster,WaveAlign);
     WaveMin = NLX_WaveformMin(NSE,iCluster,WaveAlign);
-    
-    fprintf('%1.0f %1.2f MB, waveformsize: %1.0f to %1.0f, stepsize %1.0f\n',iloop, NSE_filesize, WaveMin, WaveMax, Step);
-   
-    if iloop == 0
-        Step = 0.5*abs(diff([WaveMax WaveMin]) * (1 - NSE_filesize / mean(NSE_targetfilesize)));
-    else
-        iDecr = iDecr+1;
-        Step = Step .* (log(2)./log(iDecr+1));
+        
+    if NSE_filesize > NSE_targetfilesize(2)
+        nextStepDir = +1;
+    elseif (NSE_filesize < NSE_targetfilesize(1))
+        nextStepDir = -1;
     end
+    
+    if iloop == 0
+        if (~isempty(WaveMax) && ~isempty(WaveMin)) && (abs(diff([WaveMax WaveMin])) > 2000)
+            Step = 0.1*abs(diff([WaveMax WaveMin])) * abs(1 - NSE_filesize / mean(NSE_targetfilesize));
+        else
+            Step = 500 * abs(1 - NSE_filesize / mean(NSE_targetfilesize));
+            WaveMin = Threshold;
+        end
+        if Step < 500
+            Step = 500;
+        end
+        Step = 500;
+    else
+        iDecr = iDecr+1;       
+        StepDirHistory(iDecr) = nextStepDir;
+        
+        if (iDecr > 2) && (sign(StepDirHistory(iDecr)) ~= sign(StepDirHistory(iDecr-1)))    
+            iSwitch = iSwitch+1;
+            %             Step = Step .* (log(2)./log(iSwitch+1));
+%             Step = Step / 2;
+            Step = Step * abs(1 - NSE_filesize / mean(NSE_targetfilesize));
+        else
+%             Step = Step * abs(1 - NSE_filesize / mean(NSE_targetfilesize));
+        end
+    end
+    fprintf('%1.0f %1.2f MB, waveformsize: %1.0f to %1.0f, Threshold %1.0f, Step %1.0f\n',iloop, NSE_filesize, WaveMin, WaveMax, Threshold, Step);
+
+    
     if ~isempty(Step)
         StepHistory(iDecr) = Step;
     else
-        Threshold = Threshold * 0.75;
     end
 
-    if Step < 100
+    if Step < 20 && iDecr>3
         % implemented an extra cycle with different step sizes, to prevent
         % non-convergence to a spike threshold and getting stuck in the
         % while loop with stepsize 0. Jochem van Kempen 01/03/2018
         Step = mean(StepHistory(2:3));
         iloop = 1;
         iDecr = 1;
+        fprintf('adapting... %1.0f %1.2f MB, waveformsize: %1.0f to %1.0f, Threshold %1.0f, Step %1.0f\n',iloop, NSE_filesize, WaveMin, WaveMax, Threshold, Step);
+    end
+        
+    if isempty(WaveMin)
+        WaveMin = Threshold;
     end
 end
 
